@@ -1,0 +1,18 @@
+syntax = "proto3";
+package goteem;
+
+service Agent {
+  rpc Teem(TeemRequest) returns (TeemResponse) {}
+  rpc Quit(QuitRequest) returns (QuitResponse) {}
+}
+
+message TeemRequest {
+  int32 Users = 1;
+  float Rate  = 2;
+}
+
+message TeemResponse {}
+
+message QuitRequest{}
+
+message QuitResponse{}

@@ -45,8 +45,8 @@ func AgentMain() {
 		Behavior: behavior,
 	}
 
-	// Start teeming.
-	agent.Teem()
+	// Start listening.
+	agent.Listen(":5557")
 }
 
 func main() {
