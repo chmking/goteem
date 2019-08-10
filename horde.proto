@@ -1,17 +1,31 @@
 syntax = "proto3";
 package horde;
 
+enum Status {
+  UNKNOWN  = 0;
+  IDLE     = 1;
+  RUNNING  = 2;
+  STOPPING = 3;
+  QUITTING = 4;
+}
+
 service Agent {
   rpc Start(StartRequest) returns (StartResponse) {}
+  rpc Stop(StopRequest) returns (StopResponse) {}
   rpc Quit(QuitRequest) returns (QuitResponse) {}
 }
 
 message StartRequest {
-  int32 Users = 1;
-  float Rate  = 2;
+  int32  Users = 1;
+  double Rate  = 2;
+  int64  Wait  = 3;
 }
 
 message StartResponse {}
+
+message StopRequest{}
+
+message StopResponse{}
 
 message QuitRequest{}
 

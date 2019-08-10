@@ -23,9 +23,42 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type Status int32
+
+const (
+	Status_UNKNOWN  Status = 0
+	Status_IDLE     Status = 1
+	Status_RUNNING  Status = 2
+	Status_STOPPING Status = 3
+	Status_QUITTING Status = 4
+)
+
+var Status_name = map[int32]string{
+	0: "UNKNOWN",
+	1: "IDLE",
+	2: "RUNNING",
+	3: "STOPPING",
+	4: "QUITTING",
+}
+var Status_value = map[string]int32{
+	"UNKNOWN":  0,
+	"IDLE":     1,
+	"RUNNING":  2,
+	"STOPPING": 3,
+	"QUITTING": 4,
+}
+
+func (x Status) String() string {
+	return proto.EnumName(Status_name, int32(x))
+}
+func (Status) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_horde_549f6a99a826f18d, []int{0}
+}
+
 type StartRequest struct {
 	Users                int32    `protobuf:"varint,1,opt,name=Users,proto3" json:"Users,omitempty"`
-	Rate                 float32  `protobuf:"fixed32,2,opt,name=Rate,proto3" json:"Rate,omitempty"`
+	Rate                 float64  `protobuf:"fixed64,2,opt,name=Rate,proto3" json:"Rate,omitempty"`
+	Wait                 int64    `protobuf:"varint,3,opt,name=Wait,proto3" json:"Wait,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -35,7 +68,7 @@ func (m *StartRequest) Reset()         { *m = StartRequest{} }
 func (m *StartRequest) String() string { return proto.CompactTextString(m) }
 func (*StartRequest) ProtoMessage()    {}
 func (*StartRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_horde_42c3d7c9ac0b1b11, []int{0}
+	return fileDescriptor_horde_549f6a99a826f18d, []int{0}
 }
 func (m *StartRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StartRequest.Unmarshal(m, b)
@@ -62,9 +95,16 @@ func (m *StartRequest) GetUsers() int32 {
 	return 0
 }
 
-func (m *StartRequest) GetRate() float32 {
+func (m *StartRequest) GetRate() float64 {
 	if m != nil {
 		return m.Rate
+	}
+	return 0
+}
+
+func (m *StartRequest) GetWait() int64 {
+	if m != nil {
+		return m.Wait
 	}
 	return 0
 }
@@ -79,7 +119,7 @@ func (m *StartResponse) Reset()         { *m = StartResponse{} }
 func (m *StartResponse) String() string { return proto.CompactTextString(m) }
 func (*StartResponse) ProtoMessage()    {}
 func (*StartResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_horde_42c3d7c9ac0b1b11, []int{1}
+	return fileDescriptor_horde_549f6a99a826f18d, []int{1}
 }
 func (m *StartResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StartResponse.Unmarshal(m, b)
@@ -99,6 +139,66 @@ func (m *StartResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_StartResponse proto.InternalMessageInfo
 
+type StopRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopRequest) Reset()         { *m = StopRequest{} }
+func (m *StopRequest) String() string { return proto.CompactTextString(m) }
+func (*StopRequest) ProtoMessage()    {}
+func (*StopRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_horde_549f6a99a826f18d, []int{2}
+}
+func (m *StopRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopRequest.Unmarshal(m, b)
+}
+func (m *StopRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopRequest.Marshal(b, m, deterministic)
+}
+func (dst *StopRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopRequest.Merge(dst, src)
+}
+func (m *StopRequest) XXX_Size() int {
+	return xxx_messageInfo_StopRequest.Size(m)
+}
+func (m *StopRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopRequest proto.InternalMessageInfo
+
+type StopResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopResponse) Reset()         { *m = StopResponse{} }
+func (m *StopResponse) String() string { return proto.CompactTextString(m) }
+func (*StopResponse) ProtoMessage()    {}
+func (*StopResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_horde_549f6a99a826f18d, []int{3}
+}
+func (m *StopResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopResponse.Unmarshal(m, b)
+}
+func (m *StopResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopResponse.Marshal(b, m, deterministic)
+}
+func (dst *StopResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopResponse.Merge(dst, src)
+}
+func (m *StopResponse) XXX_Size() int {
+	return xxx_messageInfo_StopResponse.Size(m)
+}
+func (m *StopResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopResponse proto.InternalMessageInfo
+
 type QuitRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -109,7 +209,7 @@ func (m *QuitRequest) Reset()         { *m = QuitRequest{} }
 func (m *QuitRequest) String() string { return proto.CompactTextString(m) }
 func (*QuitRequest) ProtoMessage()    {}
 func (*QuitRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_horde_42c3d7c9ac0b1b11, []int{2}
+	return fileDescriptor_horde_549f6a99a826f18d, []int{4}
 }
 func (m *QuitRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QuitRequest.Unmarshal(m, b)
@@ -139,7 +239,7 @@ func (m *QuitResponse) Reset()         { *m = QuitResponse{} }
 func (m *QuitResponse) String() string { return proto.CompactTextString(m) }
 func (*QuitResponse) ProtoMessage()    {}
 func (*QuitResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_horde_42c3d7c9ac0b1b11, []int{3}
+	return fileDescriptor_horde_549f6a99a826f18d, []int{5}
 }
 func (m *QuitResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QuitResponse.Unmarshal(m, b)
@@ -162,8 +262,11 @@ var xxx_messageInfo_QuitResponse proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*StartRequest)(nil), "horde.StartRequest")
 	proto.RegisterType((*StartResponse)(nil), "horde.StartResponse")
+	proto.RegisterType((*StopRequest)(nil), "horde.StopRequest")
+	proto.RegisterType((*StopResponse)(nil), "horde.StopResponse")
 	proto.RegisterType((*QuitRequest)(nil), "horde.QuitRequest")
 	proto.RegisterType((*QuitResponse)(nil), "horde.QuitResponse")
+	proto.RegisterEnum("horde.Status", Status_name, Status_value)
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -179,6 +282,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AgentClient interface {
 	Start(ctx context.Context, in *StartRequest, opts ...grpc.CallOption) (*StartResponse, error)
+	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error)
 	Quit(ctx context.Context, in *QuitRequest, opts ...grpc.CallOption) (*QuitResponse, error)
 }
 
@@ -199,6 +303,15 @@ func (c *agentClient) Start(ctx context.Context, in *StartRequest, opts ...grpc.
 	return out, nil
 }
 
+func (c *agentClient) Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error) {
+	out := new(StopResponse)
+	err := c.cc.Invoke(ctx, "/horde.Agent/Stop", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentClient) Quit(ctx context.Context, in *QuitRequest, opts ...grpc.CallOption) (*QuitResponse, error) {
 	out := new(QuitResponse)
 	err := c.cc.Invoke(ctx, "/horde.Agent/Quit", in, out, opts...)
@@ -211,6 +324,7 @@ func (c *agentClient) Quit(ctx context.Context, in *QuitRequest, opts ...grpc.Ca
 // AgentServer is the server API for Agent service.
 type AgentServer interface {
 	Start(context.Context, *StartRequest) (*StartResponse, error)
+	Stop(context.Context, *StopRequest) (*StopResponse, error)
 	Quit(context.Context, *QuitRequest) (*QuitResponse, error)
 }
 
@@ -232,6 +346,24 @@ func _Agent_Start_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentServer).Start(ctx, req.(*StartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).Stop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/horde.Agent/Stop",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).Stop(ctx, req.(*StopRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -263,6 +395,10 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Agent_Start_Handler,
 		},
 		{
+			MethodName: "Stop",
+			Handler:    _Agent_Stop_Handler,
+		},
+		{
 			MethodName: "Quit",
 			Handler:    _Agent_Quit_Handler,
 		},
@@ -271,19 +407,25 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 	Metadata: "horde.proto",
 }
 
-func init() { proto.RegisterFile("horde.proto", fileDescriptor_horde_42c3d7c9ac0b1b11) }
+func init() { proto.RegisterFile("horde.proto", fileDescriptor_horde_549f6a99a826f18d) }
 
-var fileDescriptor_horde_42c3d7c9ac0b1b11 = []byte{
-	// 173 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xce, 0xc8, 0x2f, 0x4a,
-	0x49, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0x73, 0x94, 0x2c, 0xb8, 0x78, 0x82,
-	0x4b, 0x12, 0x8b, 0x4a, 0x82, 0x52, 0x0b, 0x4b, 0x53, 0x8b, 0x4b, 0x84, 0x44, 0xb8, 0x58, 0x43,
-	0x8b, 0x53, 0x8b, 0x8a, 0x25, 0x18, 0x15, 0x18, 0x35, 0x58, 0x83, 0x20, 0x1c, 0x21, 0x21, 0x2e,
-	0x96, 0xa0, 0xc4, 0x92, 0x54, 0x09, 0x26, 0x05, 0x46, 0x0d, 0xa6, 0x20, 0x30, 0x5b, 0x89, 0x9f,
-	0x8b, 0x17, 0xaa, 0xb3, 0xb8, 0x20, 0x3f, 0xaf, 0x38, 0x55, 0x89, 0x97, 0x8b, 0x3b, 0xb0, 0x34,
-	0x13, 0x66, 0x92, 0x12, 0x1f, 0x17, 0x0f, 0x84, 0x0b, 0x91, 0x36, 0x2a, 0xe0, 0x62, 0x75, 0x4c,
-	0x4f, 0xcd, 0x2b, 0x11, 0x32, 0xe1, 0x62, 0x05, 0x6b, 0x14, 0x12, 0xd6, 0x83, 0x38, 0x08, 0xd9,
-	0x01, 0x52, 0x22, 0xa8, 0x82, 0x50, 0xb3, 0x19, 0x84, 0x0c, 0xb9, 0x58, 0x40, 0xc6, 0x09, 0x09,
-	0x41, 0xe5, 0x91, 0xac, 0x92, 0x12, 0x46, 0x11, 0x83, 0x69, 0x49, 0x62, 0x03, 0xfb, 0xd4, 0x18,
-	0x10, 0x00, 0x00, 0xff, 0xff, 0xc9, 0xd9, 0x9b, 0x10, 0xf8, 0x00, 0x00, 0x00,
+var fileDescriptor_horde_549f6a99a826f18d = []byte{
+	// 269 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x54, 0x91, 0x4f, 0x4f, 0x83, 0x40,
+	0x10, 0xc5, 0xd9, 0x02, 0xb5, 0x19, 0x5a, 0x25, 0xd3, 0x1e, 0x48, 0x4f, 0x84, 0x13, 0xf1, 0xd0,
+	0xc4, 0x3f, 0x5f, 0xc0, 0x44, 0xa3, 0xc4, 0x66, 0xdb, 0x2e, 0x90, 0x9e, 0x31, 0x6e, 0xb4, 0x97,
+	0x82, 0xec, 0xf0, 0x89, 0xfc, 0xa2, 0x66, 0x17, 0x82, 0xdb, 0xdb, 0xfc, 0xde, 0xcb, 0x0c, 0xef,
+	0xb1, 0x10, 0x7c, 0xd7, 0xed, 0xa7, 0xdc, 0x34, 0x6d, 0x4d, 0x35, 0xfa, 0x06, 0x92, 0x2d, 0xcc,
+	0x73, 0xaa, 0x5a, 0x12, 0xf2, 0xa7, 0x93, 0x8a, 0x70, 0x05, 0x7e, 0xa9, 0x64, 0xab, 0x22, 0x16,
+	0xb3, 0xd4, 0x17, 0x3d, 0x20, 0x82, 0x27, 0x2a, 0x92, 0xd1, 0x24, 0x66, 0x29, 0x13, 0x66, 0xd6,
+	0xda, 0xb1, 0x3a, 0x51, 0xe4, 0xc6, 0x2c, 0x75, 0x85, 0x99, 0x93, 0x1b, 0x58, 0x0c, 0xd7, 0x54,
+	0x53, 0x9f, 0x95, 0x4c, 0x16, 0x10, 0xe4, 0x54, 0x37, 0xc3, 0xf5, 0xe4, 0x5a, 0x7f, 0x4d, 0xe3,
+	0xbf, 0x7d, 0xe8, 0x4e, 0x64, 0xd9, 0x3d, 0xf6, 0xf6, 0xed, 0x1b, 0x4c, 0x73, 0xaa, 0xa8, 0x53,
+	0x18, 0xc0, 0x55, 0xc9, 0xdf, 0xf9, 0xee, 0xc8, 0x43, 0x07, 0x67, 0xe0, 0x65, 0xcf, 0xdb, 0x97,
+	0x90, 0x69, 0x59, 0x94, 0x9c, 0x67, 0xfc, 0x35, 0x9c, 0xe0, 0x1c, 0x66, 0x79, 0xb1, 0xdb, 0xef,
+	0x35, 0xb9, 0x9a, 0x0e, 0x65, 0x56, 0x14, 0x9a, 0xbc, 0xfb, 0x5f, 0x06, 0xfe, 0xd3, 0x97, 0x3c,
+	0x13, 0x3e, 0x82, 0x6f, 0x22, 0xe2, 0x72, 0xd3, 0xff, 0x0e, 0xbb, 0xfe, 0x7a, 0x75, 0x29, 0x0e,
+	0x31, 0x1d, 0xbc, 0x03, 0x4f, 0x07, 0x47, 0x1c, 0xfd, 0xb1, 0xd4, 0x7a, 0x79, 0xa1, 0xd9, 0x2b,
+	0xba, 0xcc, 0xb8, 0x62, 0x15, 0x1d, 0x57, 0xec, 0xb6, 0x89, 0xf3, 0x31, 0x35, 0x4f, 0xf3, 0xf0,
+	0x17, 0x00, 0x00, 0xff, 0xff, 0x7f, 0x62, 0xbd, 0x18, 0xa9, 0x01, 0x00, 0x00,
 }
