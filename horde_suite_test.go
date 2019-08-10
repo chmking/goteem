@@ -1,4 +1,4 @@
-package goteem_test
+package horde_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestGoteem(t *testing.T) {
+func TestHorde(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Goteem Suite")
+	RunSpecs(t, "Horde Suite")
 }

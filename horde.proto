@@ -1,17 +1,17 @@
 syntax = "proto3";
-package goteem;
+package horde;
 
 service Agent {
-  rpc Teem(TeemRequest) returns (TeemResponse) {}
+  rpc Start(StartRequest) returns (StartResponse) {}
   rpc Quit(QuitRequest) returns (QuitResponse) {}
 }
 
-message TeemRequest {
+message StartRequest {
   int32 Users = 1;
   float Rate  = 2;
 }
 
-message TeemResponse {}
+message StartResponse {}
 
 message QuitRequest{}
 

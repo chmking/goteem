@@ -1,17 +1,17 @@
-package goteem_test
+package horde_test
 
 import (
 	"context"
 	"net/http"
 	"time"
 
-	"github.com/chmking/goteem"
+	"github.com/chmking/horde"
 )
 
 // Example represents a custom test to be performed.
 func Example(ctx context.Context) {
 	// Recorder is embedded in the context
-	recorder := goteem.RecorderFrom(ctx)
+	recorder := horde.RecorderFrom(ctx)
 
 	// Measure the request
 	start := time.Now()
@@ -29,19 +29,19 @@ func Example(ctx context.Context) {
 
 func AgentMain() {
 	// Define a simple HTTP task.
-	task := &goteem.Task{
+	task := &horde.Task{
 		Name:   "example",
 		Func:   Example,
 		Weight: 1,
 	}
 
 	// Define a simple behavior.
-	behavior := &goteem.Behavior{
-		Tasks: []*goteem.Task{task},
+	behavior := &horde.Behavior{
+		Tasks: []*horde.Task{task},
 	}
 
 	// Create an agent.
-	agent := goteem.Agent{
+	agent := horde.Agent{
 		Behavior: behavior,
 	}
 

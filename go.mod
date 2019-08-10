@@ -1,4 +1,4 @@
-module github.com/chmking/goteem
+module github.com/chmking/horde
 
 go 1.12
 

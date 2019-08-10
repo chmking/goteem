@@ -1,4 +1,4 @@
-package goteem
+package horde
 
 import "context"
 

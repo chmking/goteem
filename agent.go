@@ -1,4 +1,4 @@
-package goteem
+package horde
 
 import (
 	"context"
@@ -24,20 +24,18 @@ type Agent struct {
 }
 
 func (a *Agent) Listen(address string) error {
-	// Open socket
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		return err
 	}
 
-	// Start gRPC server
 	a.server = grpc.NewServer()
 	RegisterAgentServer(a.server, a)
 	return a.server.Serve(lis)
 }
 
-func (a *Agent) Teem(ctx context.Context, req *TeemRequest) (*TeemResponse, error) {
-	return &TeemResponse{}, nil
+func (a *Agent) Start(ctx context.Context, req *StartRequest) (*StartResponse, error) {
+	return &StartResponse{}, nil
 }
 
 func (a *Agent) Quit(ctx context.Context, req *QuitRequest) (*QuitResponse, error) {
