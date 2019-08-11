@@ -4,9 +4,10 @@ package horde;
 enum Status {
   UNKNOWN  = 0;
   IDLE     = 1;
-  RUNNING  = 2;
-  STOPPING = 3;
-  QUITTING = 4;
+  SCALING  = 2;
+  RUNNING  = 3;
+  STOPPING = 4;
+  QUITTING = 5;
 }
 
 service Agent {

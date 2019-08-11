@@ -12,13 +12,13 @@ import (
 
 var _ = Describe("Agent", func() {
 	var (
-		agent *Agent
 		ctx   context.Context
+		agent *Agent
 	)
 
 	BeforeEach(func() {
-		agent = New(Config{})
 		ctx = context.Background()
+		agent = New(Config{})
 	})
 
 	Describe("Quit", func() {
@@ -30,12 +30,33 @@ var _ = Describe("Agent", func() {
 
 		Context("when the agent is IDLE", func() {
 			BeforeEach(func() {
-				Expect(agent.Status()).To(Equal(Status_IDLE))
+				agent.Status = Status_IDLE
 			})
 
 			It("sets the status to QUITTING", func() {
 				agent.Quit(ctx, &req)
-				Expect(agent.Status()).To(Equal(Status_QUITTING))
+				Expect(agent.Status).To(Equal(Status_QUITTING))
+			})
+
+			It("returns a QuitResponse", func() {
+				resp, _ := agent.Quit(ctx, &req)
+				Expect(resp).NotTo(BeNil())
+			})
+
+			It("does not return an error", func() {
+				_, err := agent.Quit(ctx, &req)
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the status is SCALING", func() {
+			BeforeEach(func() {
+				agent.Status = Status_SCALING
+			})
+
+			It("sets the status to QUITTING", func() {
+				agent.Quit(ctx, &req)
+				Expect(agent.Status).To(Equal(Status_QUITTING))
 			})
 
 			It("returns a QuitResponse", func() {
@@ -51,13 +72,12 @@ var _ = Describe("Agent", func() {
 
 		Context("when the status is RUNNING", func() {
 			BeforeEach(func() {
-				agent.Start(ctx, &StartRequest{})
-				Expect(agent.Status()).To(Equal(Status_RUNNING))
+				agent.Status = Status_RUNNING
 			})
 
 			It("sets the status to QUITTING", func() {
 				agent.Quit(ctx, &req)
-				Expect(agent.Status()).To(Equal(Status_QUITTING))
+				Expect(agent.Status).To(Equal(Status_QUITTING))
 			})
 
 			It("returns a QuitResponse", func() {
@@ -73,14 +93,12 @@ var _ = Describe("Agent", func() {
 
 		Context("when the agent is STOPPING", func() {
 			BeforeEach(func() {
-				agent.Start(ctx, &StartRequest{})
-				agent.Stop(ctx, &StopRequest{})
-				Expect(agent.Status()).To(Equal(Status_STOPPING))
+				agent.Status = Status_STOPPING
 			})
 
 			It("sets the status to QUITTING", func() {
 				agent.Quit(ctx, &req)
-				Expect(agent.Status()).To(Equal(Status_QUITTING))
+				Expect(agent.Status).To(Equal(Status_QUITTING))
 			})
 
 			It("returns a QuitResponse", func() {
@@ -96,13 +114,12 @@ var _ = Describe("Agent", func() {
 
 		Context("when the agent is QUITTING", func() {
 			BeforeEach(func() {
-				agent.Quit(ctx, &QuitRequest{})
-				Expect(agent.Status()).To(Equal(Status_QUITTING))
+				agent.Status = Status_QUITTING
 			})
 
 			It("leaves the status QUITTING", func() {
 				agent.Quit(ctx, &req)
-				Expect(agent.Status()).To(Equal(Status_QUITTING))
+				Expect(agent.Status).To(Equal(Status_QUITTING))
 			})
 
 			It("returns a QuitResponse", func() {

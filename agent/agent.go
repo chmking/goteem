@@ -10,25 +10,21 @@ import (
 )
 
 type Session interface {
-	Scale(count int32, rate float64, wait int64)
-	Stop()
+	Scale(count int32, rate float64, wait int64, cb session.Callback)
+	Stop(cb session.Callback)
 }
 
 func New(config horde.Config) *Agent {
 	return &Agent{
-		status:  horde.Status_IDLE,
-		session: &session.Session{},
+		Session: &session.Session{},
+		Status:  horde.Status_IDLE,
 	}
 }
 
 type Agent struct {
-	session Session
-	status  horde.Status
+	Session Session
+	Status  horde.Status
 	server  *grpc.Server
-}
-
-func (a *Agent) Status() horde.Status {
-	return a.status
 }
 
 func (a *Agent) Listen(address string) error {
@@ -43,12 +39,14 @@ func (a *Agent) Listen(address string) error {
 }
 
 func (a *Agent) Start(ctx context.Context, req *horde.StartRequest) (*horde.StartResponse, error) {
-	switch a.status {
+	switch a.Status {
 	case horde.Status_IDLE:
 		fallthrough
+	case horde.Status_SCALING:
+		fallthrough
 	case horde.Status_RUNNING:
-		a.status = horde.Status_RUNNING
-		a.session.Scale(req.Users, req.Rate, req.Wait)
+		a.Status = horde.Status_SCALING
+		a.Session.Scale(req.Users, req.Rate, req.Wait, a.onScaled)
 	case horde.Status_STOPPING:
 		return nil, horde.ErrStatusStopping
 	case horde.Status_QUITTING:
@@ -59,13 +57,14 @@ func (a *Agent) Start(ctx context.Context, req *horde.StartRequest) (*horde.Star
 }
 
 func (a *Agent) Stop(ctx context.Context, req *horde.StopRequest) (*horde.StopResponse, error) {
-	switch a.status {
+	switch a.Status {
 	case horde.Status_IDLE:
 		// no-op
+	case horde.Status_SCALING:
+		fallthrough
 	case horde.Status_RUNNING:
-		a.status = horde.Status_STOPPING
-		a.session.Stop()
-		a.status = horde.Status_IDLE
+		a.Status = horde.Status_STOPPING
+		a.Session.Stop(a.onStopped)
 	case horde.Status_STOPPING:
 		// no-op
 	case horde.Status_QUITTING:
@@ -84,7 +83,15 @@ func (a *Agent) Quit(ctx context.Context, req *horde.QuitRequest) (*horde.QuitRe
 
 	// Regardless of current state, the agent is always switched to
 	// QUITTING before exit to deter other requests.
-	a.status = horde.Status_QUITTING
+	a.Status = horde.Status_QUITTING
 
 	return &horde.QuitResponse{}, nil
+}
+
+func (a *Agent) onScaled() {
+	a.Status = horde.Status_RUNNING
+}
+
+func (a *Agent) onStopped() {
+	a.Status = horde.Status_IDLE
 }
