@@ -2,6 +2,7 @@ package agent_test
 
 import (
 	"context"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -36,7 +37,9 @@ var _ = Describe("Agent", func() {
 			Context("and scaling completes", func() {
 				It("sets the status to RUNNING", func() {
 					agent.Start(ctx, &req)
-					Expect(agent.Status).To(Equal(Status_RUNNING))
+					<-time.After(time.Millisecond)
+
+					Expect(agent.SafeStatus()).To(Equal(Status_RUNNING))
 				})
 
 				It("returns a StartResponse", func() {
@@ -57,7 +60,7 @@ var _ = Describe("Agent", func() {
 
 				It("sets the status to SCALING", func() {
 					agent.Start(ctx, &req)
-					Expect(agent.Status).To(Equal(Status_SCALING))
+					Expect(agent.SafeStatus()).To(Equal(Status_SCALING))
 				})
 
 				It("returns a StartResponse", func() {
@@ -80,7 +83,8 @@ var _ = Describe("Agent", func() {
 			Context("and scaling completes", func() {
 				It("sets the status to RUNNING", func() {
 					agent.Start(ctx, &req)
-					Expect(agent.Status).To(Equal(Status_RUNNING))
+					<-time.After(time.Millisecond)
+					Expect(agent.SafeStatus()).To(Equal(Status_RUNNING))
 				})
 
 				It("returns a StartResponse", func() {
@@ -101,7 +105,7 @@ var _ = Describe("Agent", func() {
 
 				It("sets the status to SCALING", func() {
 					agent.Start(ctx, &req)
-					Expect(agent.Status).To(Equal(Status_SCALING))
+					Expect(agent.SafeStatus()).To(Equal(Status_SCALING))
 				})
 
 				It("returns a StartResponse", func() {
@@ -124,7 +128,8 @@ var _ = Describe("Agent", func() {
 			Context("and scaling completes", func() {
 				It("sets the status to RUNNING", func() {
 					agent.Start(ctx, &req)
-					Expect(agent.Status).To(Equal(Status_RUNNING))
+					<-time.After(time.Millisecond)
+					Expect(agent.SafeStatus()).To(Equal(Status_RUNNING))
 				})
 
 				It("returns a StartResponse", func() {
@@ -145,7 +150,7 @@ var _ = Describe("Agent", func() {
 
 				It("sets the status to SCALING", func() {
 					agent.Start(ctx, &req)
-					Expect(agent.Status).To(Equal(Status_SCALING))
+					Expect(agent.SafeStatus()).To(Equal(Status_SCALING))
 				})
 
 				It("returns a StartResponse", func() {
@@ -167,7 +172,7 @@ var _ = Describe("Agent", func() {
 
 			It("leaves the status STOPPING", func() {
 				agent.Start(ctx, &req)
-				Expect(agent.Status).To(Equal(Status_STOPPING))
+				Expect(agent.SafeStatus()).To(Equal(Status_STOPPING))
 			})
 
 			It("does not return a StartResponse", func() {
@@ -188,7 +193,7 @@ var _ = Describe("Agent", func() {
 
 			It("leaves the status QUITTING", func() {
 				agent.Start(ctx, &req)
-				Expect(agent.Status).To(Equal(Status_QUITTING))
+				Expect(agent.SafeStatus()).To(Equal(Status_QUITTING))
 			})
 
 			It("does not return a StartResponse", func() {
