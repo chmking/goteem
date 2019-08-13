@@ -2,12 +2,12 @@ package horde
 
 import "context"
 
-type contextKey string
+type contextKey int
 
-const recorder = contextKey("recorder")
+var recorderKey contextKey
 
 func RecorderFrom(ctx context.Context) *Recorder {
-	if v, ok := ctx.Value(recorder).(*Recorder); ok {
+	if v, ok := ctx.Value(recorderKey).(*Recorder); ok {
 		return v
 	}
 
