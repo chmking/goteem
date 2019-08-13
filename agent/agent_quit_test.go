@@ -8,6 +8,7 @@ import (
 
 	. "github.com/chmking/horde"
 	. "github.com/chmking/horde/agent"
+	. "github.com/chmking/horde/protobuf/private"
 )
 
 var _ = Describe("Agent", func() {

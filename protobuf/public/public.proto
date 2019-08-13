@@ -1,0 +1,18 @@
+syntax = "proto3";
+package public;
+
+service Manager {
+  rpc Start(StartRequest) returns (StartResponse) {}
+  rpc Stop(StopRequest) returns (StopResponse) {}
+}
+
+message StartRequest {
+  int32  Users = 1;
+  double Rate  = 2;
+}
+
+message StartResponse {}
+
+message StopRequest{}
+
+message StopResponse{}

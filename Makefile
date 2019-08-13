@@ -1,6 +1,7 @@
 .PHONY: protobuf
 protobuf:
-	@protoc horde.proto --go_out=plugins=grpc:.
+	@protoc protobuf/public/public.proto --go_out=plugins=grpc:.
+	@protoc protobuf/private/private.proto --go_out=plugins=grpc:.
 
 .PHONY: test
 test:

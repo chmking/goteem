@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/chmking/horde"
+	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/session"
 	grpc "google.golang.org/grpc"
 )
@@ -18,18 +19,18 @@ type Session interface {
 func New(config horde.Config) *Agent {
 	return &Agent{
 		Session: &session.Session{},
-		Status:  horde.Status_IDLE,
+		Status:  private.Status_IDLE,
 	}
 }
 
 type Agent struct {
 	Session Session
-	Status  horde.Status
+	Status  private.Status
 	server  *grpc.Server
 	mtx     sync.Mutex
 }
 
-func (a *Agent) SafeStatus() horde.Status {
+func (a *Agent) SafeStatus() private.Status {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	return a.Status
@@ -42,53 +43,52 @@ func (a *Agent) Listen(address string) error {
 	}
 
 	a.server = grpc.NewServer()
-	horde.RegisterAgentServer(a.server, a)
 	return a.server.Serve(lis)
 }
 
-func (a *Agent) Start(ctx context.Context, req *horde.StartRequest) (*horde.StartResponse, error) {
+func (a *Agent) Start(ctx context.Context, req *private.StartRequest) (*private.StartResponse, error) {
 	switch a.Status {
-	case horde.Status_IDLE:
+	case private.Status_IDLE:
 		fallthrough
-	case horde.Status_SCALING:
+	case private.Status_SCALING:
 		fallthrough
-	case horde.Status_RUNNING:
+	case private.Status_RUNNING:
 		a.mtx.Lock()
-		a.Status = horde.Status_SCALING
+		a.Status = private.Status_SCALING
 		a.mtx.Unlock()
 
 		a.Session.Scale(req.Users, req.Rate, req.Wait, a.onScaled)
-	case horde.Status_STOPPING:
+	case private.Status_STOPPING:
 		return nil, horde.ErrStatusStopping
-	case horde.Status_QUITTING:
+	case private.Status_QUITTING:
 		return nil, horde.ErrStatusQuitting
 	}
 
-	return &horde.StartResponse{}, nil
+	return &private.StartResponse{}, nil
 }
 
-func (a *Agent) Stop(ctx context.Context, req *horde.StopRequest) (*horde.StopResponse, error) {
+func (a *Agent) Stop(ctx context.Context, req *private.StopRequest) (*private.StopResponse, error) {
 	switch a.Status {
-	case horde.Status_IDLE:
+	case private.Status_IDLE:
 		// no-op
-	case horde.Status_SCALING:
+	case private.Status_SCALING:
 		fallthrough
-	case horde.Status_RUNNING:
+	case private.Status_RUNNING:
 		a.mtx.Lock()
-		a.Status = horde.Status_STOPPING
+		a.Status = private.Status_STOPPING
 		a.mtx.Unlock()
 
 		a.Session.Stop(a.onStopped)
-	case horde.Status_STOPPING:
+	case private.Status_STOPPING:
 		// no-op
-	case horde.Status_QUITTING:
+	case private.Status_QUITTING:
 		// no-op
 	}
 
-	return &horde.StopResponse{}, nil
+	return &private.StopResponse{}, nil
 }
 
-func (a *Agent) Quit(ctx context.Context, req *horde.QuitRequest) (*horde.QuitResponse, error) {
+func (a *Agent) Quit(ctx context.Context, req *private.QuitRequest) (*private.QuitResponse, error) {
 	defer func() {
 		if a.server != nil {
 			a.server.Stop()
@@ -98,20 +98,20 @@ func (a *Agent) Quit(ctx context.Context, req *horde.QuitRequest) (*horde.QuitRe
 	// Regardless of current state, the agent is always switched to
 	// QUITTING before exit to deter other requests.
 	a.mtx.Lock()
-	a.Status = horde.Status_QUITTING
+	a.Status = private.Status_QUITTING
 	a.mtx.Unlock()
 
-	return &horde.QuitResponse{}, nil
+	return &private.QuitResponse{}, nil
 }
 
 func (a *Agent) onScaled() {
 	a.mtx.Lock()
-	a.Status = horde.Status_RUNNING
+	a.Status = private.Status_RUNNING
 	a.mtx.Unlock()
 }
 
 func (a *Agent) onStopped() {
 	a.mtx.Lock()
-	a.Status = horde.Status_IDLE
+	a.Status = private.Status_IDLE
 	a.mtx.Unlock()
 }

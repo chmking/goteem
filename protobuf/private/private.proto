@@ -1,5 +1,5 @@
 syntax = "proto3";
-package horde;
+package private;
 
 enum Status {
   UNKNOWN  = 0;
@@ -10,10 +10,11 @@ enum Status {
   QUITTING = 5;
 }
 
-service Agent {
-  rpc Start(StartRequest) returns (StartResponse) {}
-  rpc Stop(StopRequest) returns (StopResponse) {}
-  rpc Quit(QuitRequest) returns (QuitResponse) {}
+service Manager {
+  rpc Start(stream StartResponse) returns (stream StartRequest) {}
+  rpc Stop(stream StopResponse) returns (stream StopRequest) {}
+
+  rpc Heartbeat(stream HeartbeatResponse) returns (Empty) {} 
 }
 
 message StartRequest {
@@ -31,3 +32,7 @@ message StopResponse{}
 message QuitRequest{}
 
 message QuitResponse{}
+
+message HeartbeatResponse{}
+
+message Empty{}
