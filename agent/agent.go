@@ -54,6 +54,7 @@ func (a *Agent) Dial(ctx context.Context, address string) {
 
 func (a *Agent) doDial(ctx context.Context, address string) error {
 	conn, err := grpc.Dial("127.0.0.1:5557",
+		grpc.WithBackoffMaxDelay(time.Second),
 		grpc.WithInsecure(),
 		grpc.WithBlock())
 	if err != nil {
