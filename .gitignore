@@ -1,3 +1,6 @@
+# Builds
+build/**
+
 # Gingko Coverprofiles
 **/*.coverprofile
 **/coverage.out

@@ -2,8 +2,10 @@ package agent
 
 import (
 	"context"
+	"log"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/protobuf/private"
@@ -35,6 +37,45 @@ func (a *Agent) SafeStatus() private.Status {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	return a.Status
+}
+
+func (a *Agent) Dial(ctx context.Context, address string) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			if err := a.doDial(ctx, address); err != nil {
+				log.Print(err)
+			}
+		}
+	}
+}
+
+func (a *Agent) doDial(ctx context.Context, address string) error {
+	conn, err := grpc.Dial("127.0.0.1:5557",
+		grpc.WithInsecure(),
+		grpc.WithBlock())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := private.NewManagerClient(conn)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			_, err := client.Heartbeat(ctx, &private.HeartbeatRequest{})
+			if err != nil {
+				return err
+			}
+		}
+
+		<-time.After(time.Second)
+	}
 }
 
 func (a *Agent) Listen(address string) error {
