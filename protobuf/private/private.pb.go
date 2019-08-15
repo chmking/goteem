@@ -55,7 +55,7 @@ func (x Status) String() string {
 	return proto.EnumName(Status_name, int32(x))
 }
 func (Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{0}
+	return fileDescriptor_private_9bd60ec2c1841162, []int{0}
 }
 
 type StartRequest struct {
@@ -71,7 +71,7 @@ func (m *StartRequest) Reset()         { *m = StartRequest{} }
 func (m *StartRequest) String() string { return proto.CompactTextString(m) }
 func (*StartRequest) ProtoMessage()    {}
 func (*StartRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{0}
+	return fileDescriptor_private_9bd60ec2c1841162, []int{0}
 }
 func (m *StartRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StartRequest.Unmarshal(m, b)
@@ -122,7 +122,7 @@ func (m *StartResponse) Reset()         { *m = StartResponse{} }
 func (m *StartResponse) String() string { return proto.CompactTextString(m) }
 func (*StartResponse) ProtoMessage()    {}
 func (*StartResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{1}
+	return fileDescriptor_private_9bd60ec2c1841162, []int{1}
 }
 func (m *StartResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StartResponse.Unmarshal(m, b)
@@ -152,7 +152,7 @@ func (m *StopRequest) Reset()         { *m = StopRequest{} }
 func (m *StopRequest) String() string { return proto.CompactTextString(m) }
 func (*StopRequest) ProtoMessage()    {}
 func (*StopRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{2}
+	return fileDescriptor_private_9bd60ec2c1841162, []int{2}
 }
 func (m *StopRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StopRequest.Unmarshal(m, b)
@@ -182,7 +182,7 @@ func (m *StopResponse) Reset()         { *m = StopResponse{} }
 func (m *StopResponse) String() string { return proto.CompactTextString(m) }
 func (*StopResponse) ProtoMessage()    {}
 func (*StopResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{3}
+	return fileDescriptor_private_9bd60ec2c1841162, []int{3}
 }
 func (m *StopResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StopResponse.Unmarshal(m, b)
@@ -212,7 +212,7 @@ func (m *QuitRequest) Reset()         { *m = QuitRequest{} }
 func (m *QuitRequest) String() string { return proto.CompactTextString(m) }
 func (*QuitRequest) ProtoMessage()    {}
 func (*QuitRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{4}
+	return fileDescriptor_private_9bd60ec2c1841162, []int{4}
 }
 func (m *QuitRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QuitRequest.Unmarshal(m, b)
@@ -242,7 +242,7 @@ func (m *QuitResponse) Reset()         { *m = QuitResponse{} }
 func (m *QuitResponse) String() string { return proto.CompactTextString(m) }
 func (*QuitResponse) ProtoMessage()    {}
 func (*QuitResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{5}
+	return fileDescriptor_private_9bd60ec2c1841162, []int{5}
 }
 func (m *QuitResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QuitResponse.Unmarshal(m, b)
@@ -262,6 +262,36 @@ func (m *QuitResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QuitResponse proto.InternalMessageInfo
 
+type HeartbeatRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *HeartbeatRequest) Reset()         { *m = HeartbeatRequest{} }
+func (m *HeartbeatRequest) String() string { return proto.CompactTextString(m) }
+func (*HeartbeatRequest) ProtoMessage()    {}
+func (*HeartbeatRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_private_9bd60ec2c1841162, []int{6}
+}
+func (m *HeartbeatRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_HeartbeatRequest.Unmarshal(m, b)
+}
+func (m *HeartbeatRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_HeartbeatRequest.Marshal(b, m, deterministic)
+}
+func (dst *HeartbeatRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HeartbeatRequest.Merge(dst, src)
+}
+func (m *HeartbeatRequest) XXX_Size() int {
+	return xxx_messageInfo_HeartbeatRequest.Size(m)
+}
+func (m *HeartbeatRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_HeartbeatRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HeartbeatRequest proto.InternalMessageInfo
+
 type HeartbeatResponse struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -272,7 +302,7 @@ func (m *HeartbeatResponse) Reset()         { *m = HeartbeatResponse{} }
 func (m *HeartbeatResponse) String() string { return proto.CompactTextString(m) }
 func (*HeartbeatResponse) ProtoMessage()    {}
 func (*HeartbeatResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{6}
+	return fileDescriptor_private_9bd60ec2c1841162, []int{7}
 }
 func (m *HeartbeatResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_HeartbeatResponse.Unmarshal(m, b)
@@ -292,36 +322,6 @@ func (m *HeartbeatResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_HeartbeatResponse proto.InternalMessageInfo
 
-type Empty struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Empty) Reset()         { *m = Empty{} }
-func (m *Empty) String() string { return proto.CompactTextString(m) }
-func (*Empty) ProtoMessage()    {}
-func (*Empty) Descriptor() ([]byte, []int) {
-	return fileDescriptor_private_bd9f7c6dc100368d, []int{7}
-}
-func (m *Empty) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Empty.Unmarshal(m, b)
-}
-func (m *Empty) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Empty.Marshal(b, m, deterministic)
-}
-func (dst *Empty) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Empty.Merge(dst, src)
-}
-func (m *Empty) XXX_Size() int {
-	return xxx_messageInfo_Empty.Size(m)
-}
-func (m *Empty) XXX_DiscardUnknown() {
-	xxx_messageInfo_Empty.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Empty proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*StartRequest)(nil), "private.StartRequest")
 	proto.RegisterType((*StartResponse)(nil), "private.StartResponse")
@@ -329,8 +329,8 @@ func init() {
 	proto.RegisterType((*StopResponse)(nil), "private.StopResponse")
 	proto.RegisterType((*QuitRequest)(nil), "private.QuitRequest")
 	proto.RegisterType((*QuitResponse)(nil), "private.QuitResponse")
+	proto.RegisterType((*HeartbeatRequest)(nil), "private.HeartbeatRequest")
 	proto.RegisterType((*HeartbeatResponse)(nil), "private.HeartbeatResponse")
-	proto.RegisterType((*Empty)(nil), "private.Empty")
 	proto.RegisterEnum("private.Status", Status_name, Status_value)
 }
 
@@ -342,13 +342,141 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
+// AgentClient is the client API for Agent service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type AgentClient interface {
+	Start(ctx context.Context, in *StartRequest, opts ...grpc.CallOption) (*StartResponse, error)
+	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error)
+	Quit(ctx context.Context, in *QuitRequest, opts ...grpc.CallOption) (*QuitResponse, error)
+}
+
+type agentClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewAgentClient(cc *grpc.ClientConn) AgentClient {
+	return &agentClient{cc}
+}
+
+func (c *agentClient) Start(ctx context.Context, in *StartRequest, opts ...grpc.CallOption) (*StartResponse, error) {
+	out := new(StartResponse)
+	err := c.cc.Invoke(ctx, "/private.Agent/Start", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error) {
+	out := new(StopResponse)
+	err := c.cc.Invoke(ctx, "/private.Agent/Stop", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) Quit(ctx context.Context, in *QuitRequest, opts ...grpc.CallOption) (*QuitResponse, error) {
+	out := new(QuitResponse)
+	err := c.cc.Invoke(ctx, "/private.Agent/Quit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AgentServer is the server API for Agent service.
+type AgentServer interface {
+	Start(context.Context, *StartRequest) (*StartResponse, error)
+	Stop(context.Context, *StopRequest) (*StopResponse, error)
+	Quit(context.Context, *QuitRequest) (*QuitResponse, error)
+}
+
+func RegisterAgentServer(s *grpc.Server, srv AgentServer) {
+	s.RegisterService(&_Agent_serviceDesc, srv)
+}
+
+func _Agent_Start_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).Start(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/private.Agent/Start",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).Start(ctx, req.(*StartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).Stop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/private.Agent/Stop",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).Stop(ctx, req.(*StopRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_Quit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).Quit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/private.Agent/Quit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).Quit(ctx, req.(*QuitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Agent_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "private.Agent",
+	HandlerType: (*AgentServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Start",
+			Handler:    _Agent_Start_Handler,
+		},
+		{
+			MethodName: "Stop",
+			Handler:    _Agent_Stop_Handler,
+		},
+		{
+			MethodName: "Quit",
+			Handler:    _Agent_Quit_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "protobuf/private/private.proto",
+}
+
 // ManagerClient is the client API for Manager service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ManagerClient interface {
-	Start(ctx context.Context, opts ...grpc.CallOption) (Manager_StartClient, error)
-	Stop(ctx context.Context, opts ...grpc.CallOption) (Manager_StopClient, error)
-	Heartbeat(ctx context.Context, opts ...grpc.CallOption) (Manager_HeartbeatClient, error)
+	Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatResponse, error)
 }
 
 type managerClient struct {
@@ -359,241 +487,80 @@ func NewManagerClient(cc *grpc.ClientConn) ManagerClient {
 	return &managerClient{cc}
 }
 
-func (c *managerClient) Start(ctx context.Context, opts ...grpc.CallOption) (Manager_StartClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Manager_serviceDesc.Streams[0], "/private.Manager/Start", opts...)
+func (c *managerClient) Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatResponse, error) {
+	out := new(HeartbeatResponse)
+	err := c.cc.Invoke(ctx, "/private.Manager/Heartbeat", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &managerStartClient{stream}
-	return x, nil
-}
-
-type Manager_StartClient interface {
-	Send(*StartResponse) error
-	Recv() (*StartRequest, error)
-	grpc.ClientStream
-}
-
-type managerStartClient struct {
-	grpc.ClientStream
-}
-
-func (x *managerStartClient) Send(m *StartResponse) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *managerStartClient) Recv() (*StartRequest, error) {
-	m := new(StartRequest)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *managerClient) Stop(ctx context.Context, opts ...grpc.CallOption) (Manager_StopClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Manager_serviceDesc.Streams[1], "/private.Manager/Stop", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &managerStopClient{stream}
-	return x, nil
-}
-
-type Manager_StopClient interface {
-	Send(*StopResponse) error
-	Recv() (*StopRequest, error)
-	grpc.ClientStream
-}
-
-type managerStopClient struct {
-	grpc.ClientStream
-}
-
-func (x *managerStopClient) Send(m *StopResponse) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *managerStopClient) Recv() (*StopRequest, error) {
-	m := new(StopRequest)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *managerClient) Heartbeat(ctx context.Context, opts ...grpc.CallOption) (Manager_HeartbeatClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Manager_serviceDesc.Streams[2], "/private.Manager/Heartbeat", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &managerHeartbeatClient{stream}
-	return x, nil
-}
-
-type Manager_HeartbeatClient interface {
-	Send(*HeartbeatResponse) error
-	CloseAndRecv() (*Empty, error)
-	grpc.ClientStream
-}
-
-type managerHeartbeatClient struct {
-	grpc.ClientStream
-}
-
-func (x *managerHeartbeatClient) Send(m *HeartbeatResponse) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *managerHeartbeatClient) CloseAndRecv() (*Empty, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(Empty)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // ManagerServer is the server API for Manager service.
 type ManagerServer interface {
-	Start(Manager_StartServer) error
-	Stop(Manager_StopServer) error
-	Heartbeat(Manager_HeartbeatServer) error
+	Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatResponse, error)
 }
 
 func RegisterManagerServer(s *grpc.Server, srv ManagerServer) {
 	s.RegisterService(&_Manager_serviceDesc, srv)
 }
 
-func _Manager_Start_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ManagerServer).Start(&managerStartServer{stream})
-}
-
-type Manager_StartServer interface {
-	Send(*StartRequest) error
-	Recv() (*StartResponse, error)
-	grpc.ServerStream
-}
-
-type managerStartServer struct {
-	grpc.ServerStream
-}
-
-func (x *managerStartServer) Send(m *StartRequest) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *managerStartServer) Recv() (*StartResponse, error) {
-	m := new(StartResponse)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _Manager_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HeartbeatRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
-}
-
-func _Manager_Stop_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ManagerServer).Stop(&managerStopServer{stream})
-}
-
-type Manager_StopServer interface {
-	Send(*StopRequest) error
-	Recv() (*StopResponse, error)
-	grpc.ServerStream
-}
-
-type managerStopServer struct {
-	grpc.ServerStream
-}
-
-func (x *managerStopServer) Send(m *StopRequest) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *managerStopServer) Recv() (*StopResponse, error) {
-	m := new(StopResponse)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
+	if interceptor == nil {
+		return srv.(ManagerServer).Heartbeat(ctx, in)
 	}
-	return m, nil
-}
-
-func _Manager_Heartbeat_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ManagerServer).Heartbeat(&managerHeartbeatServer{stream})
-}
-
-type Manager_HeartbeatServer interface {
-	SendAndClose(*Empty) error
-	Recv() (*HeartbeatResponse, error)
-	grpc.ServerStream
-}
-
-type managerHeartbeatServer struct {
-	grpc.ServerStream
-}
-
-func (x *managerHeartbeatServer) SendAndClose(m *Empty) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *managerHeartbeatServer) Recv() (*HeartbeatResponse, error) {
-	m := new(HeartbeatResponse)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/private.Manager/Heartbeat",
 	}
-	return m, nil
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServer).Heartbeat(ctx, req.(*HeartbeatRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 var _Manager_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "private.Manager",
 	HandlerType: (*ManagerServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams: []grpc.StreamDesc{
+	Methods: []grpc.MethodDesc{
 		{
-			StreamName:    "Start",
-			Handler:       _Manager_Start_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
-		},
-		{
-			StreamName:    "Stop",
-			Handler:       _Manager_Stop_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
-		},
-		{
-			StreamName:    "Heartbeat",
-			Handler:       _Manager_Heartbeat_Handler,
-			ClientStreams: true,
+			MethodName: "Heartbeat",
+			Handler:    _Manager_Heartbeat_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "protobuf/private/private.proto",
 }
 
 func init() {
-	proto.RegisterFile("protobuf/private/private.proto", fileDescriptor_private_bd9f7c6dc100368d)
+	proto.RegisterFile("protobuf/private/private.proto", fileDescriptor_private_9bd60ec2c1841162)
 }
 
-var fileDescriptor_private_bd9f7c6dc100368d = []byte{
-	// 317 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x91, 0x4f, 0x4f, 0xc2, 0x40,
-	0x10, 0xc5, 0x59, 0x68, 0x29, 0x0e, 0x7f, 0xc4, 0x11, 0x0d, 0xe9, 0xc1, 0x90, 0x9e, 0x1a, 0x0f,
-	0x68, 0xf4, 0x64, 0xf4, 0x62, 0x94, 0x28, 0x11, 0x0b, 0xb4, 0x34, 0x9c, 0x97, 0x64, 0x35, 0x1c,
-	0xa4, 0x75, 0x77, 0x6a, 0xe2, 0xa7, 0xf3, 0xab, 0x99, 0x5d, 0x0a, 0x54, 0x3c, 0x75, 0x7e, 0xef,
-	0xcd, 0x4c, 0xf3, 0x66, 0xe1, 0x2c, 0x95, 0x09, 0x25, 0x8b, 0xec, 0xed, 0x22, 0x95, 0xcb, 0x2f,
-	0x4e, 0x62, 0xf3, 0xed, 0x1b, 0x03, 0x9d, 0x1c, 0xbd, 0x11, 0x34, 0x22, 0xe2, 0x92, 0x42, 0xf1,
-	0x99, 0x09, 0x45, 0xd8, 0x01, 0x3b, 0x56, 0x42, 0xaa, 0x2e, 0xeb, 0x31, 0xdf, 0x0e, 0xd7, 0x80,
-	0x08, 0x56, 0xc8, 0x49, 0x74, 0xcb, 0x3d, 0xe6, 0xb3, 0xd0, 0xd4, 0x5a, 0x9b, 0xf3, 0x25, 0x75,
-	0x2b, 0x3d, 0xe6, 0x57, 0x42, 0x53, 0x7b, 0x87, 0xd0, 0xcc, 0xb7, 0xa9, 0x34, 0x59, 0x29, 0xe1,
-	0x35, 0xa1, 0x1e, 0x51, 0x92, 0xe6, 0xdb, 0xbd, 0x96, 0xfe, 0x9b, 0xc6, 0x9d, 0x3d, 0xcd, 0x96,
-	0x54, 0xb0, 0xd7, 0x98, 0xdb, 0xc7, 0x70, 0xf4, 0x2c, 0xb8, 0xa4, 0x85, 0xe0, 0x3b, 0xd1, 0x01,
-	0x7b, 0xf0, 0x91, 0xd2, 0xf7, 0x79, 0x0c, 0xd5, 0x88, 0x38, 0x65, 0x0a, 0xeb, 0xe0, 0xc4, 0xc1,
-	0x4b, 0x30, 0x9e, 0x07, 0xed, 0x12, 0xd6, 0xc0, 0x1a, 0x3e, 0x8e, 0x06, 0x6d, 0xa6, 0xe5, 0xe8,
-	0xe1, 0x7e, 0x34, 0x0c, 0x9e, 0xda, 0x65, 0x0d, 0x61, 0x1c, 0x04, 0x1a, 0x2a, 0xd8, 0x80, 0x5a,
-	0x34, 0x1b, 0x4f, 0x26, 0x9a, 0x2c, 0x4d, 0xd3, 0x78, 0x38, 0x9b, 0x69, 0xb2, 0xaf, 0x7e, 0x18,
-	0x38, 0xaf, 0x7c, 0xc5, 0xdf, 0x85, 0xc4, 0x3b, 0xb0, 0x4d, 0x1e, 0x3c, 0xed, 0x6f, 0xee, 0xf7,
-	0x27, 0x9f, 0x7b, 0xb2, 0xaf, 0xaf, 0x83, 0x94, 0x7c, 0x76, 0xc9, 0xf0, 0x06, 0x2c, 0x9d, 0x16,
-	0x8b, 0x4d, 0xbb, 0xf0, 0x6e, 0x67, 0x4f, 0x2e, 0x8e, 0xde, 0xc2, 0xc1, 0x36, 0x39, 0xba, 0xdb,
-	0xc6, 0x7f, 0xd7, 0x70, 0x5b, 0x5b, 0xcf, 0x1c, 0x45, 0x8f, 0x2f, 0xaa, 0xe6, 0x8d, 0xaf, 0x7f,
-	0x03, 0x00, 0x00, 0xff, 0xff, 0x50, 0xdb, 0x33, 0x87, 0x05, 0x02, 0x00, 0x00,
+var fileDescriptor_private_9bd60ec2c1841162 = []byte{
+	// 331 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x92, 0x41, 0x4f, 0xfa, 0x40,
+	0x10, 0xc5, 0x59, 0x68, 0x81, 0xff, 0x00, 0x7f, 0xeb, 0x08, 0x06, 0x7b, 0x30, 0xa4, 0x27, 0xe2,
+	0x01, 0x13, 0x8c, 0x89, 0x57, 0x22, 0x46, 0x89, 0x58, 0xa0, 0xa5, 0xe1, 0xbc, 0x24, 0x2b, 0xe1,
+	0x42, 0xeb, 0xee, 0xd4, 0xaf, 0xe5, 0x57, 0x34, 0x5b, 0x4a, 0x5d, 0x1b, 0x4f, 0x9d, 0xdf, 0x7b,
+	0x33, 0xd3, 0xcc, 0xcb, 0xc2, 0x75, 0x22, 0x63, 0x8a, 0xb7, 0xe9, 0xfb, 0x6d, 0x22, 0xf7, 0x9f,
+	0x9c, 0xc4, 0xe9, 0x3b, 0xca, 0x0c, 0x6c, 0xe4, 0xe8, 0xcd, 0xa1, 0x1d, 0x12, 0x97, 0x14, 0x88,
+	0x8f, 0x54, 0x28, 0xc2, 0x2e, 0xd8, 0x91, 0x12, 0x52, 0xf5, 0xd9, 0x80, 0x0d, 0xed, 0xe0, 0x08,
+	0x88, 0x60, 0x05, 0x9c, 0x44, 0xbf, 0x3a, 0x60, 0x43, 0x16, 0x64, 0xb5, 0xd6, 0x36, 0x7c, 0x4f,
+	0xfd, 0xda, 0x80, 0x0d, 0x6b, 0x41, 0x56, 0x7b, 0x67, 0xd0, 0xc9, 0xb7, 0xa9, 0x24, 0x3e, 0x28,
+	0xe1, 0x75, 0xa0, 0x15, 0x52, 0x9c, 0xe4, 0xdb, 0xbd, 0xff, 0xfa, 0x6f, 0x1a, 0x7f, 0xec, 0x55,
+	0xba, 0x27, 0xc3, 0x3e, 0x62, 0x6e, 0x23, 0x38, 0x2f, 0x82, 0x4b, 0xda, 0x0a, 0x5e, 0xf4, 0x5c,
+	0xc0, 0xb9, 0xa1, 0x1d, 0x1b, 0x6f, 0x22, 0xa8, 0x87, 0xc4, 0x29, 0x55, 0xd8, 0x82, 0x46, 0xe4,
+	0xbf, 0xfa, 0x8b, 0x8d, 0xef, 0x54, 0xb0, 0x09, 0xd6, 0x6c, 0x3a, 0x7f, 0x72, 0x98, 0x96, 0xc3,
+	0xc7, 0xc9, 0x7c, 0xe6, 0x3f, 0x3b, 0x55, 0x0d, 0x41, 0xe4, 0xfb, 0x1a, 0x6a, 0xd8, 0x86, 0x66,
+	0xb8, 0x5e, 0x2c, 0x97, 0x9a, 0x2c, 0x4d, 0xab, 0x68, 0xb6, 0x5e, 0x6b, 0xb2, 0xc7, 0x5f, 0x0c,
+	0xec, 0xc9, 0x4e, 0x1c, 0x08, 0x1f, 0xc0, 0xce, 0x0e, 0xc3, 0xde, 0xe8, 0x14, 0xa4, 0x19, 0x9b,
+	0x7b, 0x59, 0x96, 0xf3, 0x0b, 0x2a, 0x78, 0x0f, 0x96, 0x3e, 0x19, 0xbb, 0x46, 0x47, 0x11, 0x88,
+	0xdb, 0x2b, 0xa9, 0xe6, 0x98, 0x8e, 0xc2, 0x18, 0x33, 0x82, 0x32, 0xc6, 0x7e, 0xe5, 0x55, 0x19,
+	0x2f, 0xa0, 0xf1, 0xc6, 0x0f, 0x7c, 0x27, 0x24, 0x4e, 0xe1, 0x5f, 0x11, 0x14, 0x5e, 0x15, 0x03,
+	0xe5, 0x40, 0x5d, 0xf7, 0x2f, 0xeb, 0xb4, 0x70, 0x5b, 0xcf, 0xde, 0xcb, 0xdd, 0x77, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0xed, 0xf9, 0x4b, 0x79, 0x51, 0x02, 0x00, 0x00,
 }

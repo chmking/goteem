@@ -10,11 +10,14 @@ enum Status {
   QUITTING = 5;
 }
 
-service Manager {
-  rpc Start(stream StartResponse) returns (stream StartRequest) {}
-  rpc Stop(stream StopResponse) returns (stream StopRequest) {}
+service Agent {
+  rpc Start(StartRequest) returns (StartResponse) {}
+  rpc Stop(StopRequest) returns (StopResponse) {}
+  rpc Quit(QuitRequest) returns (QuitResponse) {}
+}
 
-  rpc Heartbeat(stream HeartbeatResponse) returns (Empty) {} 
+service Manager {
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse) {} 
 }
 
 message StartRequest {
@@ -33,6 +36,6 @@ message QuitRequest{}
 
 message QuitResponse{}
 
-message HeartbeatResponse{}
+message HeartbeatRequest{}
 
-message Empty{}
+message HeartbeatResponse{}

@@ -7,6 +7,7 @@ import (
 
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/protobuf/private"
+	pb "github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/session"
 	grpc "google.golang.org/grpc"
 )
@@ -46,7 +47,7 @@ func (a *Agent) Listen(address string) error {
 	return a.server.Serve(lis)
 }
 
-func (a *Agent) Start(ctx context.Context, req *private.StartRequest) (*private.StartResponse, error) {
+func (a *Agent) Start(ctx context.Context, req *pb.StartRequest) (*pb.StartResponse, error) {
 	switch a.Status {
 	case private.Status_IDLE:
 		fallthrough
@@ -67,7 +68,7 @@ func (a *Agent) Start(ctx context.Context, req *private.StartRequest) (*private.
 	return &private.StartResponse{}, nil
 }
 
-func (a *Agent) Stop(ctx context.Context, req *private.StopRequest) (*private.StopResponse, error) {
+func (a *Agent) Stop(ctx context.Context, req *pb.StopRequest) (*pb.StopResponse, error) {
 	switch a.Status {
 	case private.Status_IDLE:
 		// no-op
@@ -88,7 +89,7 @@ func (a *Agent) Stop(ctx context.Context, req *private.StopRequest) (*private.St
 	return &private.StopResponse{}, nil
 }
 
-func (a *Agent) Quit(ctx context.Context, req *private.QuitRequest) (*private.QuitResponse, error) {
+func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse, error) {
 	defer func() {
 		if a.server != nil {
 			a.server.Stop()
