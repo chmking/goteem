@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/chmking/horde"
-	"github.com/chmking/horde/protobuf/private"
 	pb "github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/session"
 	grpc "google.golang.org/grpc"
@@ -22,60 +21,43 @@ type Session interface {
 func New(config horde.Config) *Agent {
 	return &Agent{
 		Session: &session.Session{},
-		Status:  private.Status_IDLE,
+		Status:  pb.Status_IDLE,
 	}
 }
 
 type Agent struct {
 	Session Session
-	Status  private.Status
+	Status  pb.Status
 	server  *grpc.Server
 	mtx     sync.Mutex
 }
 
-func (a *Agent) SafeStatus() private.Status {
+func (a *Agent) SafeStatus() pb.Status {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 	return a.Status
 }
 
 func (a *Agent) Dial(ctx context.Context, address string) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			if err := a.doDial(ctx, address); err != nil {
-				log.Print(err)
-			}
-		}
-	}
-}
-
-func (a *Agent) doDial(ctx context.Context, address string) error {
 	conn, err := grpc.Dial("127.0.0.1:5557",
 		grpc.WithBackoffMaxDelay(time.Second),
 		grpc.WithInsecure(),
 		grpc.WithBlock())
 	if err != nil {
-		return err
+		log.Fatal(err)
+		return
 	}
-	defer conn.Close()
 
-	client := private.NewManagerClient(conn)
+	client := pb.NewManagerClient(conn)
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			_, err := client.Heartbeat(ctx, &private.HeartbeatRequest{})
-			if err != nil {
-				return err
-			}
-		}
+	req := &pb.RegisterRequest{
+		Host: "127.0.0.1",
+		Port: "5558",
+	}
 
-		<-time.After(time.Second)
+	_, err = client.Register(ctx, req)
+	if err != nil {
+		return
 	}
 }
 
@@ -86,49 +68,51 @@ func (a *Agent) Listen(address string) error {
 	}
 
 	a.server = grpc.NewServer()
+	pb.RegisterAgentServer(a.server, a)
+	log.Printf("Listening for private connection on %s", address)
 	return a.server.Serve(lis)
 }
 
 func (a *Agent) Start(ctx context.Context, req *pb.StartRequest) (*pb.StartResponse, error) {
 	switch a.Status {
-	case private.Status_IDLE:
+	case pb.Status_IDLE:
 		fallthrough
-	case private.Status_SCALING:
+	case pb.Status_SCALING:
 		fallthrough
-	case private.Status_RUNNING:
+	case pb.Status_RUNNING:
 		a.mtx.Lock()
-		a.Status = private.Status_SCALING
+		a.Status = pb.Status_SCALING
 		a.mtx.Unlock()
 
 		a.Session.Scale(req.Users, req.Rate, req.Wait, a.onScaled)
-	case private.Status_STOPPING:
+	case pb.Status_STOPPING:
 		return nil, horde.ErrStatusStopping
-	case private.Status_QUITTING:
+	case pb.Status_QUITTING:
 		return nil, horde.ErrStatusQuitting
 	}
 
-	return &private.StartResponse{}, nil
+	return &pb.StartResponse{}, nil
 }
 
 func (a *Agent) Stop(ctx context.Context, req *pb.StopRequest) (*pb.StopResponse, error) {
 	switch a.Status {
-	case private.Status_IDLE:
+	case pb.Status_IDLE:
 		// no-op
-	case private.Status_SCALING:
+	case pb.Status_SCALING:
 		fallthrough
-	case private.Status_RUNNING:
+	case pb.Status_RUNNING:
 		a.mtx.Lock()
-		a.Status = private.Status_STOPPING
+		a.Status = pb.Status_STOPPING
 		a.mtx.Unlock()
 
 		a.Session.Stop(a.onStopped)
-	case private.Status_STOPPING:
+	case pb.Status_STOPPING:
 		// no-op
-	case private.Status_QUITTING:
+	case pb.Status_QUITTING:
 		// no-op
 	}
 
-	return &private.StopResponse{}, nil
+	return &pb.StopResponse{}, nil
 }
 
 func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse, error) {
@@ -141,20 +125,25 @@ func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse
 	// Regardless of current state, the agent is always switched to
 	// QUITTING before exit to deter other requests.
 	a.mtx.Lock()
-	a.Status = private.Status_QUITTING
+	a.Status = pb.Status_QUITTING
 	a.mtx.Unlock()
 
-	return &private.QuitResponse{}, nil
+	return &pb.QuitResponse{}, nil
+}
+
+func (a *Agent) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
+	log.Println("Received a private.Heartbeat request")
+	return &pb.HeartbeatResponse{}, nil
 }
 
 func (a *Agent) onScaled() {
 	a.mtx.Lock()
-	a.Status = private.Status_RUNNING
+	a.Status = pb.Status_RUNNING
 	a.mtx.Unlock()
 }
 
 func (a *Agent) onStopped() {
 	a.mtx.Lock()
-	a.Status = private.Status_IDLE
+	a.Status = pb.Status_IDLE
 	a.mtx.Unlock()
 }

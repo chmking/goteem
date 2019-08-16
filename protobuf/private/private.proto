@@ -14,10 +14,12 @@ service Agent {
   rpc Start(StartRequest) returns (StartResponse) {}
   rpc Stop(StopRequest) returns (StopResponse) {}
   rpc Quit(QuitRequest) returns (QuitResponse) {}
+
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse) {} 
 }
 
 service Manager {
-  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse) {} 
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
 }
 
 message StartRequest {
@@ -39,3 +41,10 @@ message QuitResponse{}
 message HeartbeatRequest{}
 
 message HeartbeatResponse{}
+
+message RegisterRequest{
+  string Host = 1;
+  string Port = 2;
+}
+
+message RegisterResponse{}
