@@ -1,7 +1,14 @@
 package horde
 
-const ErrStatusStopping = Error("agent is in the process of stopping")
-const ErrStatusQuitting = Error("agent is in the process of quitting")
+const (
+	ErrStatusUnexpected = Error("unexpected status")
+	ErrStatusUnknown    = Error("invalid status switch from unknown")
+	ErrStatusIdle       = Error("invalid status switch from idle")
+	ErrStatusScaling    = Error("invalid status switch from scaling")
+	ErrStatusRunning    = Error("invalid status switch from running")
+	ErrStatusStopping   = Error("invalid status switch from stopping")
+	ErrStatusQuitting   = Error("invalid status switch from quitting")
+)
 
 type Error string
 

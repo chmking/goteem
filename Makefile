@@ -6,8 +6,8 @@ protobuf:
 .PHONY: build
 build:
 	go build -o build/cmd horde/main.go
-	go build -o build/agent example/main.go
-	go build -o build/manager manager/main.go
+	go build -o build/agent example/agent.go
+	go build -o build/manager example/manager.go
 
 .PHONY: test
 test:

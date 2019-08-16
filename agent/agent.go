@@ -73,66 +73,22 @@ func (a *Agent) Listen(address string) error {
 	return a.server.Serve(lis)
 }
 
-func (a *Agent) Start(ctx context.Context, req *pb.StartRequest) (*pb.StartResponse, error) {
-	switch a.Status {
-	case pb.Status_IDLE:
-		fallthrough
-	case pb.Status_SCALING:
-		fallthrough
-	case pb.Status_RUNNING:
-		a.mtx.Lock()
-		a.Status = pb.Status_SCALING
-		a.mtx.Unlock()
-
-		a.Session.Scale(req.Users, req.Rate, req.Wait, a.onScaled)
-	case pb.Status_STOPPING:
-		return nil, horde.ErrStatusStopping
-	case pb.Status_QUITTING:
-		return nil, horde.ErrStatusQuitting
-	}
-
-	return &pb.StartResponse{}, nil
+func (a *Agent) Scale(ctx context.Context, req *pb.ScaleRequest) (*pb.ScaleResponse, error) {
+	log.Println("Received private.ScaleRequest")
+	return &pb.ScaleResponse{}, nil
 }
 
 func (a *Agent) Stop(ctx context.Context, req *pb.StopRequest) (*pb.StopResponse, error) {
-	switch a.Status {
-	case pb.Status_IDLE:
-		// no-op
-	case pb.Status_SCALING:
-		fallthrough
-	case pb.Status_RUNNING:
-		a.mtx.Lock()
-		a.Status = pb.Status_STOPPING
-		a.mtx.Unlock()
-
-		a.Session.Stop(a.onStopped)
-	case pb.Status_STOPPING:
-		// no-op
-	case pb.Status_QUITTING:
-		// no-op
-	}
-
+	log.Println("Received private.StopRequest")
 	return &pb.StopResponse{}, nil
 }
 
 func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse, error) {
-	defer func() {
-		if a.server != nil {
-			a.server.Stop()
-		}
-	}()
-
-	// Regardless of current state, the agent is always switched to
-	// QUITTING before exit to deter other requests.
-	a.mtx.Lock()
-	a.Status = pb.Status_QUITTING
-	a.mtx.Unlock()
-
+	log.Println("Received private.QuitRequest")
 	return &pb.QuitResponse{}, nil
 }
 
 func (a *Agent) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
-	log.Println("Received a private.Heartbeat request")
 	return &pb.HeartbeatResponse{}, nil
 }
 

@@ -1,4 +1,4 @@
-package main
+package manager
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 
 type Manager struct {
 	agents []AgentRegistry
+	sm     stateMachine
 	mtx    sync.Mutex
 }
 
@@ -25,12 +26,40 @@ type AgentRegistry struct {
 }
 
 func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.StartResponse, error) {
-	log.Println("Received a public.Start request")
+	log.Println("Received private.StartRequest")
+	if err := m.sm.Scaling(); err != nil {
+		return nil, err
+	}
+
+	m.mtx.Lock()
+	for _, agent := range m.agents {
+		_, err := agent.Client.Scale(ctx, &private.ScaleRequest{})
+		if err != nil {
+			// agent should be quarantined
+			log.Print(err)
+		}
+	}
+	m.mtx.Unlock()
+
 	return &public.StartResponse{}, nil
 }
 
 func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.StopResponse, error) {
-	log.Println("Received a public.Stop request")
+	log.Println("Received private.StopRequest")
+	if err := m.sm.Stopping(); err != nil {
+		return nil, err
+	}
+
+	m.mtx.Lock()
+	for _, agent := range m.agents {
+		_, err := agent.Client.Stop(ctx, &private.StopRequest{})
+		if err != nil {
+			// agent should be quarantined
+			log.Print(err)
+		}
+	}
+	m.mtx.Unlock()
+
 	return &public.StopResponse{}, nil
 }
 
@@ -61,6 +90,10 @@ func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*
 
 func (m *Manager) ListenAndServePublic() {
 	go func() {
+		if err := m.sm.Idle(); err != nil {
+			log.Fatal(err)
+		}
+
 		lis, err := net.Listen("tcp", ":8089")
 		if err != nil {
 			log.Fatal(err)
@@ -111,15 +144,4 @@ func (m *Manager) Healthcheck(ctx context.Context) {
 			}
 		}
 	}()
-}
-
-func main() {
-	ctx, _ := context.WithCancel(context.Background())
-
-	manager := &Manager{}
-	manager.ListenAndServePublic()
-	manager.ListenAndServePrivate()
-	manager.Healthcheck(ctx)
-
-	<-ctx.Done()
 }

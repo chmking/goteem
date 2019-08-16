@@ -11,7 +11,7 @@ enum Status {
 }
 
 service Agent {
-  rpc Start(StartRequest) returns (StartResponse) {}
+  rpc Scale(ScaleRequest) returns (ScaleResponse) {}
   rpc Stop(StopRequest) returns (StopResponse) {}
   rpc Quit(QuitRequest) returns (QuitResponse) {}
 
@@ -22,13 +22,13 @@ service Manager {
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
 }
 
-message StartRequest {
+message ScaleRequest {
   int32  Users = 1;
   double Rate  = 2;
   int64  Wait  = 3;
 }
 
-message StartResponse {}
+message ScaleResponse {}
 
 message StopRequest{}
 
