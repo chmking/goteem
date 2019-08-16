@@ -1,15 +1,22 @@
 language: go
 go:
 - 1.12.x
+
+cache:
+  directories:
+    - $GOPATH/pkg/mod
+
 env:
   global:
   - GO111MODULE=on
   - secure: X0/MZnRV7MOK7eO0J/UuFz7uLv9YvG1zJIvQ8V7pod+i4BNCPuMAr3kBu+SyRiq5Z0oEcgYdI+03BmZ3dKoq4fkEXHKnBg67L+7U1oYFLzTu23AP+5jjhhtBtGtA++cnUfJSd+oZmRG+53zqmkTehBJVtynPuz/qz8JB6iNDQg9Qui4jQubfCr3laJU6ETTUd1Q9ESzFzwCCTXSoUbByL+siKMDNl64Fis7DBiINyDjN/GIKAWn/W3DxXTvY1WkWyJF5YGjP0HP93id9xtX91Bqy/ifaSd9/8i1/x9cxDkbqH/uO02xSy4KYt+EGQeOj8Hzr04pXIYVOIccw6d5Nc44yVUsYZ78wd8kRK3Hhpr9ke25yyktgcwnq/pBFX/AT77DLb8PBQkanV07lGLiucoDhX5oyjz1pbMurL/wGrZpcqmTZy8hr0UFHOYm+8zXYkAmgpfVDTPHdqYcrhAnmIaaynWdXjxIEiMYrxJrjFh4bp+HpRVMJUo6hoME7EYLh+9ixPyVIwCSHSTBiomRb+o571lWISJJMDV4vD57j7OhX7a3aCpe1eDEIav06gGrxFZ0WdALxAeDyWgMToa1wMxeX4KJ2CzcRKMGZzNe9sJ7EEDJsHOxDPEFy4hD7Dv9XDA1ghCDj+4/8aEvEG7thqwwtIa8D4lUkUD511M0hczw=
+
 before_script:
 - GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo
 - GO111MODULE=off go get github.com/onsi/gomega/...
 - GO111MODULE=off go get golang.org/x/tools/cmd/cover
 - GO111MODULE=off go get github.com/mattn/goveralls
+
 script:
 - ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --trace --race --compilers=2
 - go test -v -covermode=count -coverprofile=coverage.out ./...
