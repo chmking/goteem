@@ -107,5 +107,21 @@ var _ = Describe("StateMachine", func() {
 				Expect(sm.State()).To(Equal(pb.Status_QUITTING))
 			})
 		})
+
+		Context("when the state is UNEXPECTED", func() {
+			BeforeEach(func() {
+				sm.state = 42
+			})
+
+			It("returns ErrStatusUnexpected", func() {
+				err := sm.Running()
+				Expect(err).To(Equal(horde.ErrStatusUnexpected))
+			})
+
+			It("leaves state UNEXPECTED", func() {
+				sm.Running()
+				Expect(sm.State()).To(BeNumerically("==", 42))
+			})
+		})
 	})
 })

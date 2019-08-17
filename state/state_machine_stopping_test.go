@@ -11,35 +11,35 @@ import (
 var _ = Describe("StateMachine", func() {
 	var sm StateMachine
 
-	Describe("Idle", func() {
+	Describe("Stopping", func() {
+		Context("when the state is UNKNOWN", func() {
+			BeforeEach(func() {
+				sm.state = pb.Status_UNKNOWN
+			})
+
+			It("returns ErrStatusUnknown", func() {
+				err := sm.Stopping()
+				Expect(err).To(Equal(horde.ErrStatusUnknown))
+			})
+
+			It("leaves state UNKNOWN", func() {
+				sm.Stopping()
+				Expect(sm.State()).To(Equal(pb.Status_UNKNOWN))
+			})
+		})
+
 		Context("when the state is IDLE", func() {
 			BeforeEach(func() {
 				sm.state = pb.Status_IDLE
 			})
 
 			It("does not return an error", func() {
-				err := sm.Idle()
+				err := sm.Stopping()
 				Expect(err).To(BeNil())
 			})
 
 			It("leaves state IDLE", func() {
-				sm.Idle()
-				Expect(sm.State()).To(Equal(pb.Status_IDLE))
-			})
-		})
-
-		Context("when the state is UNKNOWN", func() {
-			BeforeEach(func() {
-				sm.state = pb.Status_UNKNOWN
-			})
-
-			It("does not return an error", func() {
-				err := sm.Idle()
-				Expect(err).To(BeNil())
-			})
-
-			It("switches to IDLE", func() {
-				sm.Idle()
+				sm.Stopping()
 				Expect(sm.State()).To(Equal(pb.Status_IDLE))
 			})
 		})
@@ -49,14 +49,14 @@ var _ = Describe("StateMachine", func() {
 				sm.state = pb.Status_SCALING
 			})
 
-			It("returns ErrStatusScaling", func() {
-				err := sm.Idle()
-				Expect(err).To(Equal(horde.ErrStatusScaling))
+			It("does not return an error", func() {
+				err := sm.Stopping()
+				Expect(err).To(BeNil())
 			})
 
-			It("leaves state SCALING", func() {
-				sm.Idle()
-				Expect(sm.State()).To(Equal(pb.Status_SCALING))
+			It("switches to STOPPING", func() {
+				sm.Stopping()
+				Expect(sm.State()).To(Equal(pb.Status_STOPPING))
 			})
 		})
 
@@ -65,14 +65,14 @@ var _ = Describe("StateMachine", func() {
 				sm.state = pb.Status_RUNNING
 			})
 
-			It("returns ErrStatusRunning", func() {
-				err := sm.Idle()
-				Expect(err).To(Equal(horde.ErrStatusRunning))
+			It("does not return an error", func() {
+				err := sm.Stopping()
+				Expect(err).To(BeNil())
 			})
 
-			It("leaves state RUNNING", func() {
-				sm.Idle()
-				Expect(sm.State()).To(Equal(pb.Status_RUNNING))
+			It("switches to STOPPING", func() {
+				sm.Stopping()
+				Expect(sm.State()).To(Equal(pb.Status_STOPPING))
 			})
 		})
 
@@ -82,13 +82,13 @@ var _ = Describe("StateMachine", func() {
 			})
 
 			It("does not return an error", func() {
-				err := sm.Idle()
+				err := sm.Stopping()
 				Expect(err).To(BeNil())
 			})
 
-			It("switches to IDLE", func() {
-				sm.Idle()
-				Expect(sm.State()).To(Equal(pb.Status_IDLE))
+			It("leaves state STOPPING", func() {
+				sm.Stopping()
+				Expect(sm.State()).To(Equal(pb.Status_STOPPING))
 			})
 		})
 
@@ -98,12 +98,12 @@ var _ = Describe("StateMachine", func() {
 			})
 
 			It("returns ErrStatusQuitting", func() {
-				err := sm.Idle()
+				err := sm.Stopping()
 				Expect(err).To(Equal(horde.ErrStatusQuitting))
 			})
 
 			It("leaves state QUITTING", func() {
-				sm.Idle()
+				sm.Stopping()
 				Expect(sm.State()).To(Equal(pb.Status_QUITTING))
 			})
 		})
@@ -114,12 +114,12 @@ var _ = Describe("StateMachine", func() {
 			})
 
 			It("returns ErrStatusUnexpected", func() {
-				err := sm.Idle()
+				err := sm.Stopping()
 				Expect(err).To(Equal(horde.ErrStatusUnexpected))
 			})
 
 			It("leaves state UNEXPECTED", func() {
-				sm.Idle()
+				sm.Stopping()
 				Expect(sm.State()).To(BeNumerically("==", 42))
 			})
 		})
