@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/chmking/horde"
@@ -31,15 +30,16 @@ type Work struct {
 }
 
 type Session struct {
-	count  int32
 	cancel context.CancelFunc
 
 	workers []context.CancelFunc
 	mtx     sync.Mutex
 }
 
-func (s *Session) Count() int32 {
-	return atomic.LoadInt32(&s.count)
+func (s *Session) Count() int {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+	return len(s.workers)
 }
 
 func (s *Session) Scale(order ScaleOrder, cb Callback) {
@@ -57,64 +57,67 @@ func (s *Session) Scale(order ScaleOrder, cb Callback) {
 	go s.doScale(ctx, order)
 }
 
-func (s *Session) doScale(ctx context.Context, order ScaleOrder) {
+func (s *Session) scaleDown(ctx context.Context, order ScaleOrder) {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
 
-	current := s.Count()
+	current := len(s.workers)
 
-	// Scale Down
-	if order.Count < current {
-		log.Println("Scaling Down")
+	if int(order.Count) >= current {
+		return
+	}
 
-		diff := current - order.Count
+	diff := current - int(order.Count)
 
+	// Cancel work on workers
+	for i := current - diff; i < current; i++ {
+		if cancel := s.workers[i]; cancel != nil {
+			cancel()
+		}
+		s.workers[i] = nil
+	}
+
+	// Resize workers
+	s.workers = s.workers[:current-diff]
+}
+
+func (s *Session) scaleUp(ctx context.Context, order ScaleOrder) {
+	for {
 		s.mtx.Lock()
 
-		// Cancel work
-		for i := int32(len(s.workers)) - diff; i < int32(len(s.workers)); i++ {
-			if cancel := s.workers[i]; cancel != nil {
-				cancel()
-			}
-			s.workers[i] = nil
+		if len(s.workers) >= int(order.Count) {
+			s.mtx.Unlock()
+			return
 		}
 
-		// Resize workers
-		s.workers = s.workers[:int32(len(s.workers))-diff]
+		select {
+		case <-ctx.Done():
+			s.mtx.Unlock()
+			return
+		default:
+			ctx, cancel := context.WithCancel(context.Background())
 
-		// Update count
-		current = int32(len(s.workers))
-		atomic.StoreInt32(&s.count, current)
+			// Append worker handle
+			s.workers = append(s.workers, cancel)
+			s.mtx.Unlock()
 
-		s.mtx.Unlock()
-	}
+			// Start worker
+			go s.doWork(ctx, order.Work)
 
-	if order.Count > current {
-		log.Println("Scaling Up")
-
-		// Wait is used to stagger scaling across agents
-		<-time.After(time.Duration(order.Wait) * time.Millisecond)
-
-		// Start workers
-		for i := s.Count(); i < order.Count; i++ {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				ctx, cancel := context.WithCancel(context.Background())
-
-				// Append worker handle
-				s.mtx.Lock()
-				s.workers = append(s.workers, cancel)
-				s.mtx.Unlock()
-
-				// Start worker
-				go s.doWork(ctx, order.Work)
-
-				// Wait for rate limit
-				limit := time.Duration(float64(time.Second.Nanoseconds()) * order.Rate)
-				<-time.After(limit)
-			}
+			// Wait for rate limit
+			limit := time.Duration(float64(time.Second.Nanoseconds()) * order.Rate)
+			<-time.After(limit)
 		}
 	}
+}
+
+func (s *Session) doScale(ctx context.Context, order ScaleOrder) {
+	s.scaleDown(ctx, order)
+
+	// Wait is used to stagger scaling across agents
+	<-time.After(time.Duration(order.Wait) * time.Millisecond)
+
+	s.scaleUp(ctx, order)
 
 	if order.callback != nil {
 		order.callback()
