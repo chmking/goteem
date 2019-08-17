@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 
 	"github.com/chmking/horde/manager"
 )
@@ -9,10 +10,6 @@ import (
 func main() {
 	ctx, _ := context.WithCancel(context.Background())
 
-	m := &manager.Manager{}
-	m.ListenAndServePublic()
-	m.ListenAndServePrivate()
-	m.Healthcheck(ctx)
-
-	<-ctx.Done()
+	m := manager.New()
+	log.Fatal(m.Listen(ctx))
 }

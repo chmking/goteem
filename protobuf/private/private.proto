@@ -1,15 +1,6 @@
 syntax = "proto3";
 package private;
 
-enum Status {
-  UNKNOWN  = 0;
-  IDLE     = 1;
-  SCALING  = 2;
-  RUNNING  = 3;
-  STOPPING = 4;
-  QUITTING = 5;
-}
-
 service Agent {
   rpc Scale(ScaleRequest) returns (ScaleResponse) {}
   rpc Stop(StopRequest) returns (StopResponse) {}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -33,9 +34,8 @@ func main() {
 		WaitMax: 1500,
 	}
 
-	ctx := context.Background()
+	ctx, _ := context.WithCancel(context.Background())
 
 	agent := agent.New(config)
-	agent.Dial(ctx, "127.0.0.1:5557")
-	agent.Listen(":5558")
+	log.Fatal(agent.Listen(ctx))
 }

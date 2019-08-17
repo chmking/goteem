@@ -30,7 +30,7 @@ var startCmd = &cobra.Command{
 
 		_, err = client.Start(ctx, &public.StartRequest{})
 		if err != nil {
-			fmt.Println("Failed to connected to Horde server")
+			fmt.Print(err)
 			os.Exit(1)
 		}
 	},

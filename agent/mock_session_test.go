@@ -1,7 +1,6 @@
 package agent_test
 
 import (
-	. "github.com/chmking/horde/agent"
 	"github.com/chmking/horde/session"
 )
 
@@ -15,5 +14,3 @@ func (m *MockSession) Scale(count int32, rate float64, wait int64, cb session.Ca
 func (m *MockSession) Stop(session.Callback) {
 	// no-op
 }
-
-var _ = Session(&MockSession{})

@@ -33,8 +33,10 @@ func AgentMain() {
 		WaitMax: 1500,
 	}
 
+	ctx := context.Background()
+
 	agent := agent.New(config)
-	agent.Listen(":5557")
+	agent.Listen(ctx)
 }
 
 func main() {

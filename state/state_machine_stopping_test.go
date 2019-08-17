@@ -5,7 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/chmking/horde"
-	pb "github.com/chmking/horde/protobuf/private"
+	pb "github.com/chmking/horde/protobuf/public"
 )
 
 var _ = Describe("StateMachine", func() {
@@ -14,7 +14,7 @@ var _ = Describe("StateMachine", func() {
 	Describe("Stopping", func() {
 		Context("when the state is UNKNOWN", func() {
 			BeforeEach(func() {
-				sm.state = pb.Status_UNKNOWN
+				sm.state = pb.Status_STATUS_UNKNOWN
 			})
 
 			It("returns ErrStatusUnknown", func() {
@@ -24,13 +24,13 @@ var _ = Describe("StateMachine", func() {
 
 			It("leaves state UNKNOWN", func() {
 				sm.Stopping()
-				Expect(sm.State()).To(Equal(pb.Status_UNKNOWN))
+				Expect(sm.State()).To(Equal(pb.Status_STATUS_UNKNOWN))
 			})
 		})
 
 		Context("when the state is IDLE", func() {
 			BeforeEach(func() {
-				sm.state = pb.Status_IDLE
+				sm.state = pb.Status_STATUS_IDLE
 			})
 
 			It("does not return an error", func() {
@@ -40,13 +40,13 @@ var _ = Describe("StateMachine", func() {
 
 			It("leaves state IDLE", func() {
 				sm.Stopping()
-				Expect(sm.State()).To(Equal(pb.Status_IDLE))
+				Expect(sm.State()).To(Equal(pb.Status_STATUS_IDLE))
 			})
 		})
 
 		Context("when the state is SCALING", func() {
 			BeforeEach(func() {
-				sm.state = pb.Status_SCALING
+				sm.state = pb.Status_STATUS_SCALING
 			})
 
 			It("does not return an error", func() {
@@ -56,13 +56,13 @@ var _ = Describe("StateMachine", func() {
 
 			It("switches to STOPPING", func() {
 				sm.Stopping()
-				Expect(sm.State()).To(Equal(pb.Status_STOPPING))
+				Expect(sm.State()).To(Equal(pb.Status_STATUS_STOPPING))
 			})
 		})
 
 		Context("when the state is RUNNING", func() {
 			BeforeEach(func() {
-				sm.state = pb.Status_RUNNING
+				sm.state = pb.Status_STATUS_RUNNING
 			})
 
 			It("does not return an error", func() {
@@ -72,13 +72,13 @@ var _ = Describe("StateMachine", func() {
 
 			It("switches to STOPPING", func() {
 				sm.Stopping()
-				Expect(sm.State()).To(Equal(pb.Status_STOPPING))
+				Expect(sm.State()).To(Equal(pb.Status_STATUS_STOPPING))
 			})
 		})
 
 		Context("when the state is STOPPING", func() {
 			BeforeEach(func() {
-				sm.state = pb.Status_STOPPING
+				sm.state = pb.Status_STATUS_STOPPING
 			})
 
 			It("does not return an error", func() {
@@ -88,13 +88,13 @@ var _ = Describe("StateMachine", func() {
 
 			It("leaves state STOPPING", func() {
 				sm.Stopping()
-				Expect(sm.State()).To(Equal(pb.Status_STOPPING))
+				Expect(sm.State()).To(Equal(pb.Status_STATUS_STOPPING))
 			})
 		})
 
 		Context("when the state is QUITTING", func() {
 			BeforeEach(func() {
-				sm.state = pb.Status_QUITTING
+				sm.state = pb.Status_STATUS_QUITTING
 			})
 
 			It("returns ErrStatusQuitting", func() {
@@ -104,7 +104,7 @@ var _ = Describe("StateMachine", func() {
 
 			It("leaves state QUITTING", func() {
 				sm.Stopping()
-				Expect(sm.State()).To(Equal(pb.Status_QUITTING))
+				Expect(sm.State()).To(Equal(pb.Status_STATUS_QUITTING))
 			})
 		})
 

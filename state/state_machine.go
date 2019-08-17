@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/chmking/horde"
-	pb "github.com/chmking/horde/protobuf/private"
+	pb "github.com/chmking/horde/protobuf/public"
 )
 
 type StateMachine struct {
@@ -26,19 +26,19 @@ func (sm *StateMachine) State() pb.Status {
 
 func (sm *StateMachine) Idle() error {
 	switch sm.state {
-	case pb.Status_IDLE:
+	case pb.Status_STATUS_IDLE:
 		// no-op
 		return nil
-	case pb.Status_UNKNOWN:
+	case pb.Status_STATUS_UNKNOWN:
 		fallthrough
-	case pb.Status_STOPPING:
-		sm.setState(pb.Status_IDLE)
+	case pb.Status_STATUS_STOPPING:
+		sm.setState(pb.Status_STATUS_IDLE)
 		return nil
-	case pb.Status_SCALING:
+	case pb.Status_STATUS_SCALING:
 		return horde.ErrStatusScaling
-	case pb.Status_RUNNING:
+	case pb.Status_STATUS_RUNNING:
 		return horde.ErrStatusRunning
-	case pb.Status_QUITTING:
+	case pb.Status_STATUS_QUITTING:
 		return horde.ErrStatusQuitting
 	default:
 		return horde.ErrStatusUnexpected
@@ -47,19 +47,19 @@ func (sm *StateMachine) Idle() error {
 
 func (sm *StateMachine) Scaling() error {
 	switch sm.state {
-	case pb.Status_SCALING:
+	case pb.Status_STATUS_SCALING:
 		// no-op
 		return nil
-	case pb.Status_IDLE:
+	case pb.Status_STATUS_IDLE:
 		fallthrough
-	case pb.Status_RUNNING:
-		sm.setState(pb.Status_SCALING)
+	case pb.Status_STATUS_RUNNING:
+		sm.setState(pb.Status_STATUS_SCALING)
 		return nil
-	case pb.Status_UNKNOWN:
+	case pb.Status_STATUS_UNKNOWN:
 		return horde.ErrStatusUnknown
-	case pb.Status_STOPPING:
+	case pb.Status_STATUS_STOPPING:
 		return horde.ErrStatusStopping
-	case pb.Status_QUITTING:
+	case pb.Status_STATUS_QUITTING:
 		return horde.ErrStatusQuitting
 	default:
 		return horde.ErrStatusUnexpected
@@ -68,19 +68,19 @@ func (sm *StateMachine) Scaling() error {
 
 func (sm *StateMachine) Running() error {
 	switch sm.state {
-	case pb.Status_RUNNING:
+	case pb.Status_STATUS_RUNNING:
 		// no-op
 		return nil
-	case pb.Status_SCALING:
-		sm.setState(pb.Status_RUNNING)
+	case pb.Status_STATUS_SCALING:
+		sm.setState(pb.Status_STATUS_RUNNING)
 		return nil
-	case pb.Status_IDLE:
+	case pb.Status_STATUS_IDLE:
 		return horde.ErrStatusIdle
-	case pb.Status_UNKNOWN:
+	case pb.Status_STATUS_UNKNOWN:
 		return horde.ErrStatusUnknown
-	case pb.Status_STOPPING:
+	case pb.Status_STATUS_STOPPING:
 		return horde.ErrStatusStopping
-	case pb.Status_QUITTING:
+	case pb.Status_STATUS_QUITTING:
 		return horde.ErrStatusQuitting
 	default:
 		return horde.ErrStatusUnexpected
@@ -89,19 +89,19 @@ func (sm *StateMachine) Running() error {
 
 func (sm *StateMachine) Stopping() error {
 	switch sm.state {
-	case pb.Status_IDLE:
+	case pb.Status_STATUS_IDLE:
 		fallthrough
-	case pb.Status_STOPPING:
+	case pb.Status_STATUS_STOPPING:
 		// no-op
 		return nil
-	case pb.Status_SCALING:
+	case pb.Status_STATUS_SCALING:
 		fallthrough
-	case pb.Status_RUNNING:
-		sm.setState(pb.Status_STOPPING)
+	case pb.Status_STATUS_RUNNING:
+		sm.setState(pb.Status_STATUS_STOPPING)
 		return nil
-	case pb.Status_UNKNOWN:
+	case pb.Status_STATUS_UNKNOWN:
 		return horde.ErrStatusUnknown
-	case pb.Status_QUITTING:
+	case pb.Status_STATUS_QUITTING:
 		return horde.ErrStatusQuitting
 	default:
 		return horde.ErrStatusUnexpected
@@ -110,19 +110,19 @@ func (sm *StateMachine) Stopping() error {
 
 func (sm *StateMachine) Quitting() error {
 	switch sm.state {
-	case pb.Status_QUITTING:
+	case pb.Status_STATUS_QUITTING:
 		// no-op
 		return nil
-	case pb.Status_IDLE:
+	case pb.Status_STATUS_IDLE:
 		fallthrough
-	case pb.Status_STOPPING:
+	case pb.Status_STATUS_STOPPING:
 		fallthrough
-	case pb.Status_SCALING:
+	case pb.Status_STATUS_SCALING:
 		fallthrough
-	case pb.Status_RUNNING:
-		sm.setState(pb.Status_QUITTING)
+	case pb.Status_STATUS_RUNNING:
+		sm.setState(pb.Status_STATUS_QUITTING)
 		return nil
-	case pb.Status_UNKNOWN:
+	case pb.Status_STATUS_UNKNOWN:
 		return horde.ErrStatusUnknown
 	default:
 		return horde.ErrStatusUnexpected

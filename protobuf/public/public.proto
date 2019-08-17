@@ -1,9 +1,26 @@
 syntax = "proto3";
 package public;
 
+enum Status {
+  STATUS_UNKNOWN  = 0;
+  STATUS_IDLE     = 1;
+  STATUS_SCALING  = 2;
+  STATUS_RUNNING  = 3;
+  STATUS_STOPPING = 4;
+  STATUS_QUITTING = 5;
+}
+
+enum Health {
+  HEALTH_UNKNOWN   = 0;
+  HEALTH_HEALTHY   = 1;
+  HEALTH_UNHEALTHY = 2;
+}
+
 service Manager {
   rpc Start(StartRequest) returns (StartResponse) {}
   rpc Stop(StopRequest) returns (StopResponse) {}
+
+  rpc Status(StatusRequest) returns (StatusResponse) {}
 }
 
 message StartRequest {
@@ -16,3 +33,13 @@ message StartResponse {}
 message StopRequest{}
 
 message StopResponse{}
+
+message StatusRequest{}
+
+message StatusResponse{
+  Status Status = 1;
+}
+
+message AgentStatus{
+  Status Status = 1;
+}

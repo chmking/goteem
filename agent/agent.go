@@ -9,68 +9,100 @@ import (
 
 	"github.com/chmking/horde"
 	pb "github.com/chmking/horde/protobuf/private"
-	"github.com/chmking/horde/session"
+	"github.com/chmking/horde/protobuf/public"
+	sess "github.com/chmking/horde/session"
+	"github.com/chmking/horde/state"
 	grpc "google.golang.org/grpc"
 )
 
-type Session interface {
-	Scale(count int32, rate float64, wait int64, cb session.Callback)
-	Stop(cb session.Callback)
+type session interface {
+	Scale(count int32, rate float64, wait int64, cb sess.Callback)
+	Stop(cb sess.Callback)
+}
+
+type stateMachine interface {
+	Idle() error
+	Scaling() error
+	Stopping() error
+	State() public.Status
 }
 
 func New(config horde.Config) *Agent {
 	return &Agent{
-		Session: &session.Session{},
-		Status:  pb.Status_IDLE,
+		session: &sess.Session{},
+		sm:      &state.StateMachine{},
 	}
 }
 
 type Agent struct {
-	Session Session
-	Status  pb.Status
+	session session
+	sm      stateMachine
 	server  *grpc.Server
 	mtx     sync.Mutex
 }
 
-func (a *Agent) SafeStatus() pb.Status {
-	a.mtx.Lock()
-	defer a.mtx.Unlock()
-	return a.Status
-}
-
-func (a *Agent) Dial(ctx context.Context, address string) {
-	conn, err := grpc.Dial("127.0.0.1:5557",
-		grpc.WithBackoffMaxDelay(time.Second),
-		grpc.WithInsecure(),
-		grpc.WithBlock())
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	client := pb.NewManagerClient(conn)
-
-	req := &pb.RegisterRequest{
-		Host: "127.0.0.1",
-		Port: "5558",
-	}
-
-	_, err = client.Register(ctx, req)
-	if err != nil {
-		return
-	}
-}
-
-func (a *Agent) Listen(address string) error {
-	lis, err := net.Listen("tcp", address)
-	if err != nil {
+func (a *Agent) Listen(ctx context.Context) error {
+	if err := a.sm.Idle(); err != nil {
 		return err
 	}
 
-	a.server = grpc.NewServer()
-	pb.RegisterAgentServer(a.server, a)
-	log.Printf("Listening for private connection on %s", address)
-	return a.server.Serve(lis)
+	errs := make(chan error, 1)
+
+	a.listenAndServePrivate(errs)
+	a.dialManager(ctx, errs)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case err := <-errs:
+			return err
+		default:
+			<-time.After(time.Second)
+		}
+	}
+}
+
+func (a *Agent) listenAndServePrivate(errs chan<- error) {
+	go func() {
+		lis, err := net.Listen("tcp", ":5558")
+		if err != nil {
+			errs <- err
+			return
+		}
+
+		log.Println("Listening for private connection on :5558")
+
+		a.server = grpc.NewServer()
+		pb.RegisterAgentServer(a.server, a)
+		errs <- a.server.Serve(lis)
+	}()
+}
+
+func (a *Agent) dialManager(ctx context.Context, errs chan<- error) {
+	go func() {
+		conn, err := grpc.Dial("127.0.0.1:5557",
+			grpc.WithBackoffMaxDelay(time.Second),
+			grpc.WithInsecure(),
+			grpc.WithBlock())
+		if err != nil {
+			errs <- err
+			return
+		}
+
+		client := pb.NewManagerClient(conn)
+
+		req := &pb.RegisterRequest{
+			Host: "127.0.0.1",
+			Port: "5558",
+		}
+
+		_, err = client.Register(ctx, req)
+		if err != nil {
+			errs <- err
+			return
+		}
+	}()
 }
 
 func (a *Agent) Scale(ctx context.Context, req *pb.ScaleRequest) (*pb.ScaleResponse, error) {
@@ -93,13 +125,7 @@ func (a *Agent) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.He
 }
 
 func (a *Agent) onScaled() {
-	a.mtx.Lock()
-	a.Status = pb.Status_RUNNING
-	a.mtx.Unlock()
 }
 
 func (a *Agent) onStopped() {
-	a.mtx.Lock()
-	a.Status = pb.Status_IDLE
-	a.mtx.Unlock()
 }

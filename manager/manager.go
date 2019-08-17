@@ -13,17 +13,34 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Manager struct {
-	agents []AgentRegistry
-	sm     state.StateMachine
-	mtx    sync.Mutex
+func New() *Manager {
+	return &Manager{
+		sm: &state.StateMachine{},
+	}
 }
 
-type AgentRegistry struct {
+type stateMachine interface {
+	Idle() error
+	Scaling() error
+	Stopping() error
+	State() public.Status
+}
+
+type agentRegistry struct {
 	Host string
 	Port string
 
 	Client private.AgentClient
+}
+
+type Manager struct {
+	agents []agentRegistry
+	sm     stateMachine
+	mtx    sync.Mutex
+}
+
+func (m *Manager) State() public.Status {
+	return m.sm.State()
 }
 
 func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.StartResponse, error) {
@@ -64,6 +81,10 @@ func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.St
 	return &public.StopResponse{}, nil
 }
 
+func (m *Manager) Status(ctx context.Context, req *public.StatusRequest) (*public.StatusResponse, error) {
+	return &public.StatusResponse{}, nil
+}
+
 func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*private.RegisterResponse, error) {
 	host := req.Host + ":" + req.Port
 
@@ -75,7 +96,7 @@ func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*
 		return nil, err
 	}
 
-	registry := AgentRegistry{
+	registry := agentRegistry{
 		Host:   req.Host,
 		Port:   req.Port,
 		Client: private.NewAgentClient(conn),
@@ -89,41 +110,62 @@ func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*
 	return &private.RegisterResponse{}, nil
 }
 
-func (m *Manager) ListenAndServePublic() {
-	go func() {
-		if err := m.sm.Idle(); err != nil {
-			log.Fatal(err)
-		}
+func (m *Manager) Listen(ctx context.Context) error {
+	if err := m.sm.Idle(); err != nil {
+		return err
+	}
 
+	errs := make(chan error, 1)
+
+	m.listenAndServePublic(errs)
+	m.listenAndServePrivate(errs)
+	m.healthcheck(ctx)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case err := <-errs:
+			return err
+		default:
+			<-time.After(time.Second)
+		}
+	}
+}
+
+func (m *Manager) listenAndServePublic(errs chan<- error) {
+	go func() {
 		lis, err := net.Listen("tcp", ":8089")
 		if err != nil {
-			log.Fatal(err)
+			errs <- err
+			return
 		}
 
 		log.Println("Listening for public connections on :8089")
 
 		server := grpc.NewServer()
 		public.RegisterManagerServer(server, m)
-		log.Fatal(server.Serve(lis))
+		errs <- server.Serve(lis)
 	}()
 }
 
-func (m *Manager) ListenAndServePrivate() {
+func (m *Manager) listenAndServePrivate(errs chan<- error) {
 	go func() {
 		lis, err := net.Listen("tcp", ":5557")
 		if err != nil {
-			log.Fatal(err)
+			errs <- err
+			return
 		}
 
 		log.Println("Listening for private connections on :5557")
 
 		server := grpc.NewServer()
 		private.RegisterManagerServer(server, m)
-		log.Fatal(server.Serve(lis))
+		errs <- server.Serve(lis)
 	}()
 }
 
-func (m *Manager) Healthcheck(ctx context.Context) {
+func (m *Manager) healthcheck(ctx context.Context) {
 	go func() {
 		for {
 			select {
