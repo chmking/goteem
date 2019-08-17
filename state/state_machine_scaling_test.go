@@ -1,4 +1,4 @@
-package manager
+package state
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -9,7 +9,7 @@ import (
 )
 
 var _ = Describe("StateMachine", func() {
-	var sm stateMachine
+	var sm StateMachine
 
 	Describe("Scaling", func() {
 		Context("when the state is UNKNOWN", func() {
@@ -18,12 +18,12 @@ var _ = Describe("StateMachine", func() {
 			})
 
 			It("returns ErrStatusUnknown", func() {
-				err := sm.Running()
+				err := sm.Scaling()
 				Expect(err).To(Equal(horde.ErrStatusUnknown))
 			})
 
 			It("leaves state UNKNOWN", func() {
-				sm.Running()
+				sm.Scaling()
 				Expect(sm.State()).To(Equal(pb.Status_UNKNOWN))
 			})
 		})
@@ -33,14 +33,14 @@ var _ = Describe("StateMachine", func() {
 				sm.state = pb.Status_IDLE
 			})
 
-			It("returns ErrStatusIdle", func() {
-				err := sm.Running()
-				Expect(err).To(Equal(horde.ErrStatusIdle))
+			It("does not return an error", func() {
+				err := sm.Scaling()
+				Expect(err).To(BeNil())
 			})
 
-			It("leaves state UNKNOWN", func() {
-				sm.Running()
-				Expect(sm.State()).To(Equal(pb.Status_IDLE))
+			It("switches to SCALING", func() {
+				sm.Scaling()
+				Expect(sm.State()).To(Equal(pb.Status_SCALING))
 			})
 		})
 
@@ -50,13 +50,13 @@ var _ = Describe("StateMachine", func() {
 			})
 
 			It("does not return an error", func() {
-				err := sm.Running()
+				err := sm.Scaling()
 				Expect(err).To(BeNil())
 			})
 
-			It("switches to RUNNING", func() {
-				sm.Running()
-				Expect(sm.State()).To(Equal(pb.Status_RUNNING))
+			It("leaves state SCALING", func() {
+				sm.Scaling()
+				Expect(sm.State()).To(Equal(pb.Status_SCALING))
 			})
 		})
 
@@ -66,13 +66,13 @@ var _ = Describe("StateMachine", func() {
 			})
 
 			It("does not return an error", func() {
-				err := sm.Running()
+				err := sm.Scaling()
 				Expect(err).To(BeNil())
 			})
 
-			It("leaves state RUNNING", func() {
-				sm.Running()
-				Expect(sm.State()).To(Equal(pb.Status_RUNNING))
+			It("switches to SCALING", func() {
+				sm.Scaling()
+				Expect(sm.State()).To(Equal(pb.Status_SCALING))
 			})
 		})
 
@@ -82,12 +82,12 @@ var _ = Describe("StateMachine", func() {
 			})
 
 			It("returns ErrStatusStopping", func() {
-				err := sm.Running()
+				err := sm.Scaling()
 				Expect(err).To(Equal(horde.ErrStatusStopping))
 			})
 
 			It("leaves state STOPPING", func() {
-				sm.Running()
+				sm.Scaling()
 				Expect(sm.State()).To(Equal(pb.Status_STOPPING))
 			})
 		})
@@ -98,12 +98,12 @@ var _ = Describe("StateMachine", func() {
 			})
 
 			It("returns ErrStatusQuitting", func() {
-				err := sm.Running()
+				err := sm.Scaling()
 				Expect(err).To(Equal(horde.ErrStatusQuitting))
 			})
 
 			It("leaves state QUITTING", func() {
-				sm.Running()
+				sm.Scaling()
 				Expect(sm.State()).To(Equal(pb.Status_QUITTING))
 			})
 		})

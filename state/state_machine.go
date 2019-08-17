@@ -1,4 +1,4 @@
-package manager
+package state
 
 import (
 	"sync"
@@ -7,24 +7,24 @@ import (
 	pb "github.com/chmking/horde/protobuf/private"
 )
 
-type stateMachine struct {
+type StateMachine struct {
 	state pb.Status
 	mtx   sync.Mutex
 }
 
-func (sm *stateMachine) setState(state pb.Status) {
+func (sm *StateMachine) setState(state pb.Status) {
 	sm.mtx.Lock()
 	sm.state = state
 	sm.mtx.Unlock()
 }
 
-func (sm *stateMachine) State() pb.Status {
+func (sm *StateMachine) State() pb.Status {
 	sm.mtx.Lock()
 	defer sm.mtx.Unlock()
 	return sm.state
 }
 
-func (sm *stateMachine) Idle() error {
+func (sm *StateMachine) Idle() error {
 	switch sm.state {
 	case pb.Status_IDLE:
 		// no-op
@@ -45,7 +45,7 @@ func (sm *stateMachine) Idle() error {
 	}
 }
 
-func (sm *stateMachine) Scaling() error {
+func (sm *StateMachine) Scaling() error {
 	switch sm.state {
 	case pb.Status_SCALING:
 		// no-op
@@ -66,7 +66,7 @@ func (sm *stateMachine) Scaling() error {
 	}
 }
 
-func (sm *stateMachine) Running() error {
+func (sm *StateMachine) Running() error {
 	switch sm.state {
 	case pb.Status_RUNNING:
 		// no-op
@@ -87,7 +87,7 @@ func (sm *stateMachine) Running() error {
 	}
 }
 
-func (sm *stateMachine) Stopping() error {
+func (sm *StateMachine) Stopping() error {
 	switch sm.state {
 	case pb.Status_IDLE:
 		fallthrough
@@ -108,7 +108,7 @@ func (sm *stateMachine) Stopping() error {
 	}
 }
 
-func (sm *stateMachine) Quitting() error {
+func (sm *StateMachine) Quitting() error {
 	switch sm.state {
 	case pb.Status_QUITTING:
 		// no-op

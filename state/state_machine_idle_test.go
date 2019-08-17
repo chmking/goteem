@@ -1,4 +1,4 @@
-package manager
+package state
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -9,7 +9,7 @@ import (
 )
 
 var _ = Describe("StateMachine", func() {
-	var sm stateMachine
+	var sm StateMachine
 
 	Describe("Idle", func() {
 		Context("when the state is IDLE", func() {

@@ -9,12 +9,13 @@ import (
 
 	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
+	"github.com/chmking/horde/state"
 	"google.golang.org/grpc"
 )
 
 type Manager struct {
 	agents []AgentRegistry
-	sm     stateMachine
+	sm     state.StateMachine
 	mtx    sync.Mutex
 }
 
