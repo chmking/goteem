@@ -10,11 +10,13 @@ import (
 var _ = Describe("Session", func() {
 	var (
 		session *Session
+		order   ScaleOrder
 		done    chan struct{}
 	)
 
 	BeforeEach(func() {
 		session = &Session{}
+		order = ScaleOrder{}
 		done = make(chan struct{}, 1)
 	})
 
@@ -22,11 +24,9 @@ var _ = Describe("Session", func() {
 		It("calls the Callback when scaled", func() {
 			called := false
 
-			session.Scale(0, 0, 0, func() {
-				if done != nil {
-					called = true
-					close(done)
-				}
+			session.Scale(order, func() {
+				called = true
+				close(done)
 			})
 
 			<-done

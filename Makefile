@@ -1,7 +1,12 @@
+PACKAGE_PATH="github.com/chmking/horde"
+
 .PHONY: protobuf
 protobuf:
-	@protoc protobuf/public/public.proto --go_out=plugins=grpc:.
-	@protoc protobuf/private/private.proto --go_out=plugins=grpc:.
+	@TMPDIR=$(shell mktemp -d)
+	@protoc protobuf/public/public.proto -I protobuf --go_out=plugins=grpc:$(TMPDIR) && \
+		cp $(TMPDIR)$(PACKAGE_PATH)/protobuf/public/* protobuf/public/
+	@protoc protobuf/private/private.proto -I protobuf --go_out=plugins=grpc:$(TMPDIR) && \
+		cp $(TMPDIR)$(PACKAGE_PATH)/protobuf/private/* protobuf/private/
 
 .PHONY: build
 build:

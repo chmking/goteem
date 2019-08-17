@@ -1,5 +1,9 @@
 syntax = "proto3";
+
 package private;
+option go_package = "github.com/chmking/horde/protobuf/private";
+
+import "public/public.proto";
 
 service Agent {
   rpc Scale(ScaleRequest) returns (ScaleResponse) {}
@@ -31,7 +35,9 @@ message QuitResponse{}
 
 message HeartbeatRequest{}
 
-message HeartbeatResponse{}
+message HeartbeatResponse{
+  public.Status Status = 1;
+}
 
 message RegisterRequest{
   string Host = 1;

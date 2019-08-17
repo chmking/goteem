@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/chmking/horde/protobuf/public"
@@ -35,6 +34,19 @@ var statusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		log.Printf("%+v", resp)
+		fmt.Println("Manager:")
+		fmt.Printf("  Status: %s\n", resp.Status.String())
+		fmt.Printf("  Agents: %d\n", len(resp.Agents))
+
+		if len(resp.Agents) == 0 {
+			return
+		}
+
+		fmt.Println("")
+		fmt.Println("Agents:")
+		for _, agent := range resp.Agents {
+			fmt.Printf("  ID: %s\n")
+			fmt.Printf("    Status: %s\n", agent.Status.String())
+		}
 	},
 }

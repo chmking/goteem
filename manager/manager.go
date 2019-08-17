@@ -31,10 +31,11 @@ type agentRegistry struct {
 	Port string
 
 	Client private.AgentClient
+	Status public.Status
 }
 
 type Manager struct {
-	agents []agentRegistry
+	agents []*agentRegistry
 	sm     stateMachine
 	mtx    sync.Mutex
 }
@@ -44,14 +45,20 @@ func (m *Manager) State() public.Status {
 }
 
 func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.StartResponse, error) {
-	log.Println("Received private.StartRequest")
+	log.Println("Receieved request to start")
+
 	if err := m.sm.Scaling(); err != nil {
 		return nil, err
 	}
 
 	m.mtx.Lock()
 	for _, agent := range m.agents {
-		_, err := agent.Client.Scale(ctx, &private.ScaleRequest{})
+		scaleReq := &private.ScaleRequest{
+			Users: req.Users,
+			Rate:  req.Rate,
+		}
+
+		_, err := agent.Client.Scale(ctx, scaleReq)
 		if err != nil {
 			// agent should be quarantined
 			log.Print(err)
@@ -63,7 +70,8 @@ func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.
 }
 
 func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.StopResponse, error) {
-	log.Println("Received private.StopRequest")
+	log.Println("Received request to stop")
+
 	if err := m.sm.Stopping(); err != nil {
 		return nil, err
 	}
@@ -82,7 +90,17 @@ func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.St
 }
 
 func (m *Manager) Status(ctx context.Context, req *public.StatusRequest) (*public.StatusResponse, error) {
-	return &public.StatusResponse{}, nil
+	resp := &public.StatusResponse{
+		Status: m.sm.State(),
+	}
+
+	m.mtx.Lock()
+	for _, agent := range m.agents {
+		resp.Agents = append(resp.Agents, &public.AgentStatus{Status: agent.Status})
+	}
+	m.mtx.Unlock()
+
+	return resp, nil
 }
 
 func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*private.RegisterResponse, error) {
@@ -96,7 +114,7 @@ func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*
 		return nil, err
 	}
 
-	registry := agentRegistry{
+	registry := &agentRegistry{
 		Host:   req.Host,
 		Port:   req.Port,
 		Client: private.NewAgentClient(conn),
@@ -174,12 +192,15 @@ func (m *Manager) healthcheck(ctx context.Context) {
 			default:
 				m.mtx.Lock()
 				for _, agent := range m.agents {
-					_, err := agent.Client.Heartbeat(ctx, &private.HeartbeatRequest{})
+					resp, err := agent.Client.Heartbeat(ctx, &private.HeartbeatRequest{})
 					if err != nil {
 						// Agent should be moved to 'Unhealthy' after some
 						// number of failures.
 						log.Print(err)
+						continue
 					}
+
+					agent.Status = resp.Status
 				}
 				m.mtx.Unlock()
 

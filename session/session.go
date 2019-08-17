@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"log"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -16,9 +17,17 @@ type ScaleOrder struct {
 	Count int32
 	Rate  float64
 	Wait  int64
+	Work  Work
 
-	Work     Work
-	Callback Callback
+	callback Callback
+}
+
+type Work struct {
+	Tasks   []*horde.Task
+	WaitMin int64
+	WaitMax int64
+
+	weightSum int
 }
 
 type Session struct {
@@ -33,7 +42,9 @@ func (s *Session) Count() int32 {
 	return atomic.LoadInt32(&s.count)
 }
 
-func (s *Session) Scale(count int32, rate float64, wait int64, cb Callback) {
+func (s *Session) Scale(order ScaleOrder, cb Callback) {
+	order.callback = cb
+
 	if s.cancel != nil {
 		s.cancel()
 	}
@@ -41,21 +52,19 @@ func (s *Session) Scale(count int32, rate float64, wait int64, cb Callback) {
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancel = cancel
 
-	order := ScaleOrder{
-		Count:    count,
-		Rate:     rate,
-		Wait:     wait,
-		Callback: cb,
-	}
+	log.Printf("Scaling with ScaleOrder: %+v", order)
 
 	go s.doScale(ctx, order)
 }
 
 func (s *Session) doScale(ctx context.Context, order ScaleOrder) {
+
 	current := s.Count()
 
 	// Scale Down
-	if order.Count <= current {
+	if order.Count < current {
+		log.Println("Scaling Down")
+
 		diff := current - order.Count
 
 		s.mtx.Lock()
@@ -79,6 +88,8 @@ func (s *Session) doScale(ctx context.Context, order ScaleOrder) {
 	}
 
 	if order.Count > current {
+		log.Println("Scaling Up")
+
 		// Wait is used to stagger scaling across agents
 		<-time.After(time.Duration(order.Wait) * time.Millisecond)
 
@@ -105,17 +116,9 @@ func (s *Session) doScale(ctx context.Context, order ScaleOrder) {
 		}
 	}
 
-	if order.Callback != nil {
-		order.Callback()
+	if order.callback != nil {
+		order.callback()
 	}
-}
-
-type Work struct {
-	Tasks   []*horde.Task
-	WaitMin int64
-	WaitMax int64
-
-	weightSum int
 }
 
 func (s *Session) doWork(ctx context.Context, work Work) {

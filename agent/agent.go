@@ -16,12 +16,13 @@ import (
 )
 
 type session interface {
-	Scale(count int32, rate float64, wait int64, cb sess.Callback)
+	Scale(order sess.ScaleOrder, cb sess.Callback)
 	Stop(cb sess.Callback)
 }
 
 type stateMachine interface {
 	Idle() error
+	Running() error
 	Scaling() error
 	Stopping() error
 	State() public.Status
@@ -29,12 +30,14 @@ type stateMachine interface {
 
 func New(config horde.Config) *Agent {
 	return &Agent{
+		config:  config,
 		session: &sess.Session{},
 		sm:      &state.StateMachine{},
 	}
 }
 
 type Agent struct {
+	config  horde.Config
 	session session
 	sm      stateMachine
 	server  *grpc.Server
@@ -106,12 +109,39 @@ func (a *Agent) dialManager(ctx context.Context, errs chan<- error) {
 }
 
 func (a *Agent) Scale(ctx context.Context, req *pb.ScaleRequest) (*pb.ScaleResponse, error) {
-	log.Println("Received private.ScaleRequest")
+	log.Println("Received request to scale")
+
+	if err := a.sm.Scaling(); err != nil {
+		return nil, err
+	}
+
+	order := sess.ScaleOrder{
+		Count: req.Users,
+		Rate:  req.Rate,
+		Wait:  req.Wait,
+		Work: sess.Work{
+			Tasks:   a.config.Tasks,
+			WaitMin: a.config.WaitMin,
+			WaitMax: a.config.WaitMax,
+		},
+	}
+
+	log.Printf("Requesting Scale with ScaleOrder: %+v", order)
+
+	a.session.Scale(order, a.onScaled)
+
 	return &pb.ScaleResponse{}, nil
 }
 
 func (a *Agent) Stop(ctx context.Context, req *pb.StopRequest) (*pb.StopResponse, error) {
-	log.Println("Received private.StopRequest")
+	log.Println("Received request to stop work")
+
+	if err := a.sm.Stopping(); err != nil {
+		return nil, err
+	}
+
+	a.session.Stop(a.onStopped)
+
 	return &pb.StopResponse{}, nil
 }
 
@@ -121,11 +151,17 @@ func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse
 }
 
 func (a *Agent) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
-	return &pb.HeartbeatResponse{}, nil
+	resp := &pb.HeartbeatResponse{
+		Status: a.sm.State(),
+	}
+
+	return resp, nil
 }
 
 func (a *Agent) onScaled() {
+	a.sm.Running()
 }
 
 func (a *Agent) onStopped() {
+	a.sm.Idle()
 }

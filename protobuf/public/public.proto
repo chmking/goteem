@@ -1,5 +1,7 @@
 syntax = "proto3";
+
 package public;
+option go_package = "github.com/chmking/horde/protobuf/public";
 
 enum Status {
   STATUS_UNKNOWN  = 0;
@@ -37,7 +39,8 @@ message StopResponse{}
 message StatusRequest{}
 
 message StatusResponse{
-  Status Status = 1;
+  Status               Status = 1;
+  repeated AgentStatus Agents = 2;
 }
 
 message AgentStatus{
