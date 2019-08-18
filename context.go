@@ -17,3 +17,7 @@ func RecorderFrom(ctx context.Context) *recorder.Recorder {
 
 	return nil
 }
+
+func WithRecorder(ctx context.Context, r *recorder.Recorder) context.Context {
+	return context.WithValue(ctx, recorderKey, r)
+}

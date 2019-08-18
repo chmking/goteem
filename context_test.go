@@ -39,4 +39,22 @@ var _ = Describe("Context", func() {
 			})
 		})
 	})
+
+	Describe("WithRecorder", func() {
+		var (
+			r   *recorder.Recorder
+			ctx context.Context
+		)
+
+		BeforeEach(func() {
+			r = recorder.New()
+			ctx = context.Background()
+		})
+
+		It("embeds the Recorder", func() {
+			ctx = WithRecorder(ctx, r)
+			result := RecorderFrom(ctx)
+			Expect(result).To(Equal(r))
+		})
+	})
 })
