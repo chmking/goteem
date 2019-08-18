@@ -42,19 +42,29 @@ func (s *Session) Count() int {
 	return len(s.workers)
 }
 
-func (s *Session) Scale(order ScaleOrder, cb Callback) {
-	order.callback = cb
-
+func (s *Session) Scale(ctx context.Context, order ScaleOrder, cb Callback) {
 	if s.cancel != nil {
 		s.cancel()
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	s.cancel = cancel
+	order.callback = cb
 
 	log.Printf("Scaling with ScaleOrder: %+v", order)
 
 	go s.doScale(ctx, order)
+}
+
+func (s *Session) doScale(ctx context.Context, order ScaleOrder) {
+	s.scaleDown(ctx, order)
+
+	// Wait is used to stagger scaling across agents
+	<-time.After(time.Duration(order.Wait) * time.Millisecond)
+
+	s.scaleUp(ctx, order)
+
+	if order.callback != nil {
+		order.callback()
+	}
 }
 
 func (s *Session) scaleDown(ctx context.Context, order ScaleOrder) {
@@ -95,32 +105,19 @@ func (s *Session) scaleUp(ctx context.Context, order ScaleOrder) {
 			s.mtx.Unlock()
 			return
 		default:
-			ctx, cancel := context.WithCancel(context.Background())
+			workerCtx, cancel := context.WithCancel(ctx)
 
 			// Append worker handle
 			s.workers = append(s.workers, cancel)
 			s.mtx.Unlock()
 
 			// Start worker
-			go s.doWork(ctx, order.Work)
+			go s.doWork(workerCtx, order.Work)
 
 			// Wait for rate limit
 			limit := time.Duration(float64(time.Second.Nanoseconds()) * order.Rate)
 			<-time.After(limit)
 		}
-	}
-}
-
-func (s *Session) doScale(ctx context.Context, order ScaleOrder) {
-	s.scaleDown(ctx, order)
-
-	// Wait is used to stagger scaling across agents
-	<-time.After(time.Duration(order.Wait) * time.Millisecond)
-
-	s.scaleUp(ctx, order)
-
-	if order.callback != nil {
-		order.callback()
 	}
 }
 

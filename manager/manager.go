@@ -201,6 +201,8 @@ func (m *Manager) healthcheck(ctx context.Context) {
 					}
 
 					agent.Status = resp.Status
+
+					log.Printf("%+v\n", resp.Results)
 				}
 				m.mtx.Unlock()
 

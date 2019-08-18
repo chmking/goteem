@@ -27,7 +27,7 @@ var _ = Describe("Session", func() {
 		It("calls the Callback when scaled", func() {
 			called := false
 
-			session.Scale(order, func() {
+			session.Scale(ctx, order, func() {
 				called = true
 				close(done)
 			})

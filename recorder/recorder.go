@@ -29,13 +29,13 @@ func (r *Recorder) Panic(method, path string, latency int64, err error) {
 	r.record(public.Code_CODE_PANIC, method, path, latency, err)
 }
 
-func (r *Recorder) Results() []private.Result {
-	var results []private.Result
+func (r *Recorder) Results() []*private.Result {
+	var results []*private.Result
 
 	for {
 		select {
 		case result := <-r.results:
-			results = append(results, result)
+			results = append(results, &result)
 		default:
 			return results
 		}

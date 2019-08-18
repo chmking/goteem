@@ -3,33 +3,40 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/agent"
 )
 
 func main() {
-	// 	task := &horde.Task{
-	// 		Name: "example",
-	// 		Func: func(ctx context.Context) {
-	// 			recorder := horde.RecorderFrom(ctx)
-	//
-	// 			start := time.Now()
-	// 			_, err := http.Get("https://google.com")
-	// 			elapsed := time.Since(start).Nanoseconds()
-	//
-	// 			if err != nil {
-	// 				recorder.Error("GET", "http://google.com", elapsed, err)
-	// 			}
-	//
-	// 			recorder.Success("GET", "http://google.com", elapsed)
-	// 		},
-	// 	}
+	// task := &horde.Task{
+	// 	Name: "example",
+	// 	Func: func(ctx context.Context) {
+	// 		recorder := horde.RecorderFrom(ctx)
+
+	// 		start := time.Now()
+	// 		_, err := http.Get("https://google.com")
+	// 		elapsed := time.Since(start).Nanoseconds()
+
+	// 		if err != nil {
+	// 			recorder.Error("GET", "http://google.com", elapsed, err)
+	// 		}
+
+	// 		recorder.Success("GET", "http://google.com", elapsed)
+	// 	},
+	// }
 
 	simple := &horde.Task{
 		Name: "hello_world",
 		Func: func(ctx context.Context) {
+			recorder := horde.RecorderFrom(ctx)
+
+			start := time.Now()
 			log.Println("Hello World!")
+			elapsed := time.Since(start).Nanoseconds()
+
+			recorder.Success("GET", "http://google.com", elapsed)
 		},
 	}
 

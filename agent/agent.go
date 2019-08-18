@@ -10,15 +10,12 @@ import (
 	"github.com/chmking/horde"
 	pb "github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
+	"github.com/chmking/horde/recorder"
+	"github.com/chmking/horde/session"
 	sess "github.com/chmking/horde/session"
 	"github.com/chmking/horde/state"
 	grpc "google.golang.org/grpc"
 )
-
-type session interface {
-	Scale(order sess.ScaleOrder, cb sess.Callback)
-	Stop(cb sess.Callback)
-}
 
 type stateMachine interface {
 	Idle() error
@@ -30,18 +27,20 @@ type stateMachine interface {
 
 func New(config horde.Config) *Agent {
 	return &Agent{
-		config:  config,
-		session: &sess.Session{},
-		sm:      &state.StateMachine{},
+		config:   config,
+		recorder: recorder.New(),
+		session:  &sess.Session{},
+		sm:       &state.StateMachine{},
 	}
 }
 
 type Agent struct {
-	config  horde.Config
-	session session
-	sm      stateMachine
-	server  *grpc.Server
-	mtx     sync.Mutex
+	config   horde.Config
+	recorder *recorder.Recorder
+	session  *session.Session
+	sm       stateMachine
+	server   *grpc.Server
+	mtx      sync.Mutex
 }
 
 func (a *Agent) Listen(ctx context.Context) error {
@@ -128,7 +127,8 @@ func (a *Agent) Scale(ctx context.Context, req *pb.ScaleRequest) (*pb.ScaleRespo
 
 	log.Printf("Requesting Scale with ScaleOrder: %+v", order)
 
-	a.session.Scale(order, a.onScaled)
+	rctx := horde.WithRecorder(context.Background(), a.recorder)
+	a.session.Scale(rctx, order, a.onScaled)
 
 	return &pb.ScaleResponse{}, nil
 }
@@ -152,7 +152,8 @@ func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse
 
 func (a *Agent) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
 	resp := &pb.HeartbeatResponse{
-		Status: a.sm.State(),
+		Status:  a.sm.State(),
+		Results: a.recorder.Results(),
 	}
 
 	return resp, nil
