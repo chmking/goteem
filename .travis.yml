@@ -19,6 +19,6 @@ before_script:
 
 script:
 - ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --trace --race --compilers=2
-- go test -v -covermode=count -coverprofile=coverage.out ./...
+- go test -covermode=count -coverprofile=coverage.out ./...
 - "$HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken
   $COVERALLS_TOKEN"
