@@ -3,6 +3,7 @@ package horde
 import (
 	"context"
 
+	"github.com/chmking/horde/recorder"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -16,18 +17,18 @@ var _ = Describe("Context", func() {
 
 	Describe("RecorderFrom", func() {
 		Context("when there is an embedded recorder", func() {
-			var recorder *Recorder
+			var r *recorder.Recorder
 
 			BeforeEach(func() {
-				recorder = &Recorder{}
+				r = recorder.New()
 
-				ctx = context.WithValue(ctx, recorderKey, recorder)
-				Expect(ctx.Value(recorderKey).(*Recorder)).To(Equal(recorder))
+				ctx = context.WithValue(ctx, recorderKey, r)
+				Expect(ctx.Value(recorderKey).(*recorder.Recorder)).To(Equal(r))
 			})
 
 			It("returns the recorder", func() {
 				result := RecorderFrom(ctx)
-				Expect(result).To(Equal(recorder))
+				Expect(result).To(Equal(r))
 			})
 		})
 

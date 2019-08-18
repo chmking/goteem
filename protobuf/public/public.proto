@@ -18,6 +18,12 @@ enum Health {
   HEALTH_UNHEALTHY = 2;
 }
 
+enum Code {
+  CODE_SUCCESS = 0;
+  CODE_ERROR   = 1;
+  CODE_PANIC   = 2;
+}
+
 service Manager {
   rpc Start(StartRequest) returns (StartResponse) {}
   rpc Stop(StopRequest) returns (StopResponse) {}

@@ -1,13 +1,17 @@
 package horde
 
-import "context"
+import (
+	"context"
+
+	"github.com/chmking/horde/recorder"
+)
 
 type contextKey int
 
 var recorderKey contextKey
 
-func RecorderFrom(ctx context.Context) *Recorder {
-	if v, ok := ctx.Value(recorderKey).(*Recorder); ok {
+func RecorderFrom(ctx context.Context) *recorder.Recorder {
+	if v, ok := ctx.Value(recorderKey).(*recorder.Recorder); ok {
 		return v
 	}
 
