@@ -151,9 +151,11 @@ func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse
 }
 
 func (a *Agent) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
+	results := a.recorder.Results()
+
 	resp := &pb.HeartbeatResponse{
 		Status:  a.sm.State(),
-		Results: a.recorder.Results(),
+		Results: results,
 	}
 
 	return resp, nil

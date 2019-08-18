@@ -10,12 +10,14 @@ import (
 	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
 	"github.com/chmking/horde/state"
+	"github.com/chmking/horde/tsbuffer"
 	"google.golang.org/grpc"
 )
 
 func New() *Manager {
 	return &Manager{
-		sm: &state.StateMachine{},
+		buffer: tsbuffer.New(time.Second * 5),
+		sm:     &state.StateMachine{},
 	}
 }
 
@@ -35,9 +37,12 @@ type agentRegistry struct {
 }
 
 type Manager struct {
+	buffer *tsbuffer.Buffer
 	agents []*agentRegistry
 	sm     stateMachine
 	mtx    sync.Mutex
+
+	tallyCancel context.CancelFunc
 }
 
 func (m *Manager) State() public.Status {
@@ -66,11 +71,21 @@ func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.
 	}
 	m.mtx.Unlock()
 
+	tallyCtx, cancel := context.WithCancel(context.Background())
+	m.tallyCancel = cancel
+
+	go m.tally(tallyCtx)
+
 	return &public.StartResponse{}, nil
 }
 
 func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.StopResponse, error) {
 	log.Println("Received request to stop")
+
+	if m.tallyCancel != nil {
+		m.tallyCancel()
+		m.tallyCancel = nil
+	}
 
 	if err := m.sm.Stopping(); err != nil {
 		return nil, err
@@ -183,6 +198,27 @@ func (m *Manager) listenAndServePrivate(errs chan<- error) {
 	}()
 }
 
+func (m *Manager) tally(ctx context.Context) {
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				results := m.buffer.Collect()
+				if results != nil {
+					log.Printf("%+v", results)
+				}
+				// 	for _, result := range results {
+				// 		log.Printf("%+v", result)
+				// 	}
+			}
+
+			<-time.After(time.Second * 5)
+		}
+	}()
+}
+
 func (m *Manager) healthcheck(ctx context.Context) {
 	go func() {
 		for {
@@ -201,8 +237,9 @@ func (m *Manager) healthcheck(ctx context.Context) {
 					}
 
 					agent.Status = resp.Status
-
-					log.Printf("%+v\n", resp.Results)
+					for _, result := range resp.Results {
+						m.buffer.Add(result)
+					}
 				}
 				m.mtx.Unlock()
 

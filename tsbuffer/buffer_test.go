@@ -66,6 +66,28 @@ var _ = Describe("Buffer", func() {
 				Expect(buf.results).To(HaveLen(0))
 			})
 		})
+
+		Context("when items share same timestamp", func() {
+			BeforeEach(func() {
+				result.Millisecond = MockInitMillisecond()
+			})
+
+			It("only creates a single index", func() {
+				Expect(buf.results).To(HaveLen(0))
+				for i := 0; i < 5; i++ {
+					buf.Add(result)
+				}
+				Expect(buf.results).To(HaveLen(1))
+			})
+
+			It("appends items to the same index", func() {
+				for i := 0; i < 5; i++ {
+					buf.Add(result)
+				}
+				values := buf.results[result.Millisecond]
+				Expect(values).To(HaveLen(5))
+			})
+		})
 	})
 
 	Describe("Collect", func() {

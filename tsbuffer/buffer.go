@@ -35,15 +35,21 @@ type Buffer struct {
 	mtx         sync.Mutex
 }
 
+func (b *Buffer) Len() int {
+	b.mtx.Lock()
+	defer b.mtx.Unlock()
+	return len(b.results)
+}
+
 func (b *Buffer) Add(result *private.Result) {
 	b.mtx.Lock()
 	defer b.mtx.Unlock()
 
-	ts := result.Millisecond
-	if result == nil || ts < b.pointer {
+	if result == nil || result.Millisecond < b.pointer {
 		return
 	}
 
+	ts := result.Millisecond
 	b.results[ts] = append(b.results[ts], result)
 }
 
