@@ -44,11 +44,11 @@ func (r *Recorder) Results() []*private.Result {
 
 func (r *Recorder) record(code public.Code, method, path string, latency int64, err error) {
 	result := private.Result{
-		Second:  time.Now().Unix(),
-		Code:    code,
-		Method:  method,
-		Path:    path,
-		Latency: latency,
+		Millisecond: time.Now().UnixNano() / 1e6,
+		Code:        code,
+		Method:      method,
+		Path:        path,
+		Latency:     latency,
 	}
 
 	if err != nil {

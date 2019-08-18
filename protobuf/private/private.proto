@@ -48,10 +48,10 @@ message RegisterRequest{
 message RegisterResponse{}
 
 message Result {
-  int64       Second  = 1;
-  public.Code Code    = 2;
-  string      Method  = 3;
-  string      Path    = 4;
-  int64       Latency = 5;
-  string      Message = 6;
+  int64       Millisecond = 1;
+  public.Code Code        = 2;
+  string      Method      = 3;
+  string      Path        = 4;
+  int64       Latency     = 5;
+  string      Message     = 6;
 }

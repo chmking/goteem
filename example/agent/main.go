@@ -2,7 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net/http"
+	_ "net/http/pprof"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/chmking/horde"
@@ -27,6 +32,10 @@ func main() {
 	// 	},
 	// }
 
+	go func() {
+		log.Fatal(http.ListenAndServe(":6060", nil))
+	}()
+
 	simple := &horde.Task{
 		Name: "hello_world",
 		Func: func(ctx context.Context) {
@@ -46,8 +55,17 @@ func main() {
 		WaitMax: 1500,
 	}
 
-	ctx, _ := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 
-	agent := agent.New(config)
-	log.Fatal(agent.Listen(ctx))
+	go func() {
+		agent := agent.New(config)
+		log.Fatal(agent.Listen(ctx))
+	}()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+
+	s := <-c
+	fmt.Println("Got signal:", s)
+	cancel()
 }
