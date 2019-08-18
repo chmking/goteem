@@ -45,7 +45,6 @@ var statusCmd = &cobra.Command{
 		fmt.Println("")
 		fmt.Println("Agents:")
 		for _, agent := range resp.Agents {
-			fmt.Printf("  ID: %s\n")
 			fmt.Printf("    Status: %s\n", agent.Status.String())
 		}
 	},
