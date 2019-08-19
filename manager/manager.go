@@ -29,10 +29,18 @@ type agentRegistry struct {
 	Status public.Status
 }
 
+type stateMachine interface {
+	Idle() error
+	Scaling() error
+	Stopping() error
+	Quitting() error
+	State() public.Status
+}
+
 type Manager struct {
 	buffer *tsbuffer.Buffer
 	agents []*agentRegistry
-	sm     *state.StateMachine
+	sm     stateMachine
 	mtx    sync.Mutex
 
 	cancel      context.CancelFunc
