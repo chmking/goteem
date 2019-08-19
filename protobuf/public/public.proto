@@ -25,10 +25,10 @@ enum Code {
 }
 
 service Manager {
-  rpc Start(StartRequest) returns (StartResponse) {}
-  rpc Stop(StopRequest) returns (StopResponse) {}
-
+  rpc Start(StartRequest)   returns (StartResponse) {}
   rpc Status(StatusRequest) returns (StatusResponse) {}
+  rpc Stop(StopRequest)     returns (StopResponse) {}
+  rpc Quit(QuitRequest)     returns (QuitResponse) {}
 }
 
 message StartRequest {
@@ -37,10 +37,6 @@ message StartRequest {
 }
 
 message StartResponse {}
-
-message StopRequest{}
-
-message StopResponse{}
 
 message StatusRequest{}
 
@@ -52,3 +48,11 @@ message StatusResponse{
 message AgentStatus{
   Status Status = 1;
 }
+
+message StopRequest{}
+
+message StopResponse{}
+
+message QuitRequest{}
+
+message QuitResponse{}

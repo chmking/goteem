@@ -55,7 +55,7 @@ func (x Status) String() string {
 	return proto.EnumName(Status_name, int32(x))
 }
 func (Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{0}
+	return fileDescriptor_public_a473164aa70c97a7, []int{0}
 }
 
 type Health int32
@@ -81,7 +81,7 @@ func (x Health) String() string {
 	return proto.EnumName(Health_name, int32(x))
 }
 func (Health) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{1}
+	return fileDescriptor_public_a473164aa70c97a7, []int{1}
 }
 
 type Code int32
@@ -107,7 +107,7 @@ func (x Code) String() string {
 	return proto.EnumName(Code_name, int32(x))
 }
 func (Code) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{2}
+	return fileDescriptor_public_a473164aa70c97a7, []int{2}
 }
 
 type StartRequest struct {
@@ -122,7 +122,7 @@ func (m *StartRequest) Reset()         { *m = StartRequest{} }
 func (m *StartRequest) String() string { return proto.CompactTextString(m) }
 func (*StartRequest) ProtoMessage()    {}
 func (*StartRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{0}
+	return fileDescriptor_public_a473164aa70c97a7, []int{0}
 }
 func (m *StartRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StartRequest.Unmarshal(m, b)
@@ -166,7 +166,7 @@ func (m *StartResponse) Reset()         { *m = StartResponse{} }
 func (m *StartResponse) String() string { return proto.CompactTextString(m) }
 func (*StartResponse) ProtoMessage()    {}
 func (*StartResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{1}
+	return fileDescriptor_public_a473164aa70c97a7, []int{1}
 }
 func (m *StartResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StartResponse.Unmarshal(m, b)
@@ -186,66 +186,6 @@ func (m *StartResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_StartResponse proto.InternalMessageInfo
 
-type StopRequest struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StopRequest) Reset()         { *m = StopRequest{} }
-func (m *StopRequest) String() string { return proto.CompactTextString(m) }
-func (*StopRequest) ProtoMessage()    {}
-func (*StopRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{2}
-}
-func (m *StopRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StopRequest.Unmarshal(m, b)
-}
-func (m *StopRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StopRequest.Marshal(b, m, deterministic)
-}
-func (dst *StopRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StopRequest.Merge(dst, src)
-}
-func (m *StopRequest) XXX_Size() int {
-	return xxx_messageInfo_StopRequest.Size(m)
-}
-func (m *StopRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StopRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StopRequest proto.InternalMessageInfo
-
-type StopResponse struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StopResponse) Reset()         { *m = StopResponse{} }
-func (m *StopResponse) String() string { return proto.CompactTextString(m) }
-func (*StopResponse) ProtoMessage()    {}
-func (*StopResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{3}
-}
-func (m *StopResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StopResponse.Unmarshal(m, b)
-}
-func (m *StopResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StopResponse.Marshal(b, m, deterministic)
-}
-func (dst *StopResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StopResponse.Merge(dst, src)
-}
-func (m *StopResponse) XXX_Size() int {
-	return xxx_messageInfo_StopResponse.Size(m)
-}
-func (m *StopResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StopResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StopResponse proto.InternalMessageInfo
-
 type StatusRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -256,7 +196,7 @@ func (m *StatusRequest) Reset()         { *m = StatusRequest{} }
 func (m *StatusRequest) String() string { return proto.CompactTextString(m) }
 func (*StatusRequest) ProtoMessage()    {}
 func (*StatusRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{4}
+	return fileDescriptor_public_a473164aa70c97a7, []int{2}
 }
 func (m *StatusRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StatusRequest.Unmarshal(m, b)
@@ -288,7 +228,7 @@ func (m *StatusResponse) Reset()         { *m = StatusResponse{} }
 func (m *StatusResponse) String() string { return proto.CompactTextString(m) }
 func (*StatusResponse) ProtoMessage()    {}
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{5}
+	return fileDescriptor_public_a473164aa70c97a7, []int{3}
 }
 func (m *StatusResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StatusResponse.Unmarshal(m, b)
@@ -333,7 +273,7 @@ func (m *AgentStatus) Reset()         { *m = AgentStatus{} }
 func (m *AgentStatus) String() string { return proto.CompactTextString(m) }
 func (*AgentStatus) ProtoMessage()    {}
 func (*AgentStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_public_29c1bdf55593692d, []int{6}
+	return fileDescriptor_public_a473164aa70c97a7, []int{4}
 }
 func (m *AgentStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AgentStatus.Unmarshal(m, b)
@@ -360,14 +300,136 @@ func (m *AgentStatus) GetStatus() Status {
 	return Status_STATUS_UNKNOWN
 }
 
+type StopRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopRequest) Reset()         { *m = StopRequest{} }
+func (m *StopRequest) String() string { return proto.CompactTextString(m) }
+func (*StopRequest) ProtoMessage()    {}
+func (*StopRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_public_a473164aa70c97a7, []int{5}
+}
+func (m *StopRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopRequest.Unmarshal(m, b)
+}
+func (m *StopRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopRequest.Marshal(b, m, deterministic)
+}
+func (dst *StopRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopRequest.Merge(dst, src)
+}
+func (m *StopRequest) XXX_Size() int {
+	return xxx_messageInfo_StopRequest.Size(m)
+}
+func (m *StopRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopRequest proto.InternalMessageInfo
+
+type StopResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopResponse) Reset()         { *m = StopResponse{} }
+func (m *StopResponse) String() string { return proto.CompactTextString(m) }
+func (*StopResponse) ProtoMessage()    {}
+func (*StopResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_public_a473164aa70c97a7, []int{6}
+}
+func (m *StopResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopResponse.Unmarshal(m, b)
+}
+func (m *StopResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopResponse.Marshal(b, m, deterministic)
+}
+func (dst *StopResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopResponse.Merge(dst, src)
+}
+func (m *StopResponse) XXX_Size() int {
+	return xxx_messageInfo_StopResponse.Size(m)
+}
+func (m *StopResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopResponse proto.InternalMessageInfo
+
+type QuitRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *QuitRequest) Reset()         { *m = QuitRequest{} }
+func (m *QuitRequest) String() string { return proto.CompactTextString(m) }
+func (*QuitRequest) ProtoMessage()    {}
+func (*QuitRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_public_a473164aa70c97a7, []int{7}
+}
+func (m *QuitRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_QuitRequest.Unmarshal(m, b)
+}
+func (m *QuitRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_QuitRequest.Marshal(b, m, deterministic)
+}
+func (dst *QuitRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QuitRequest.Merge(dst, src)
+}
+func (m *QuitRequest) XXX_Size() int {
+	return xxx_messageInfo_QuitRequest.Size(m)
+}
+func (m *QuitRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QuitRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QuitRequest proto.InternalMessageInfo
+
+type QuitResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *QuitResponse) Reset()         { *m = QuitResponse{} }
+func (m *QuitResponse) String() string { return proto.CompactTextString(m) }
+func (*QuitResponse) ProtoMessage()    {}
+func (*QuitResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_public_a473164aa70c97a7, []int{8}
+}
+func (m *QuitResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_QuitResponse.Unmarshal(m, b)
+}
+func (m *QuitResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_QuitResponse.Marshal(b, m, deterministic)
+}
+func (dst *QuitResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QuitResponse.Merge(dst, src)
+}
+func (m *QuitResponse) XXX_Size() int {
+	return xxx_messageInfo_QuitResponse.Size(m)
+}
+func (m *QuitResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QuitResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QuitResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*StartRequest)(nil), "public.StartRequest")
 	proto.RegisterType((*StartResponse)(nil), "public.StartResponse")
-	proto.RegisterType((*StopRequest)(nil), "public.StopRequest")
-	proto.RegisterType((*StopResponse)(nil), "public.StopResponse")
 	proto.RegisterType((*StatusRequest)(nil), "public.StatusRequest")
 	proto.RegisterType((*StatusResponse)(nil), "public.StatusResponse")
 	proto.RegisterType((*AgentStatus)(nil), "public.AgentStatus")
+	proto.RegisterType((*StopRequest)(nil), "public.StopRequest")
+	proto.RegisterType((*StopResponse)(nil), "public.StopResponse")
+	proto.RegisterType((*QuitRequest)(nil), "public.QuitRequest")
+	proto.RegisterType((*QuitResponse)(nil), "public.QuitResponse")
 	proto.RegisterEnum("public.Status", Status_name, Status_value)
 	proto.RegisterEnum("public.Health", Health_name, Health_value)
 	proto.RegisterEnum("public.Code", Code_name, Code_value)
@@ -386,8 +448,9 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ManagerClient interface {
 	Start(ctx context.Context, in *StartRequest, opts ...grpc.CallOption) (*StartResponse, error)
-	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error)
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
+	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error)
+	Quit(ctx context.Context, in *QuitRequest, opts ...grpc.CallOption) (*QuitResponse, error)
 }
 
 type managerClient struct {
@@ -407,15 +470,6 @@ func (c *managerClient) Start(ctx context.Context, in *StartRequest, opts ...grp
 	return out, nil
 }
 
-func (c *managerClient) Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error) {
-	out := new(StopResponse)
-	err := c.cc.Invoke(ctx, "/public.Manager/Stop", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *managerClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	out := new(StatusResponse)
 	err := c.cc.Invoke(ctx, "/public.Manager/Status", in, out, opts...)
@@ -425,11 +479,30 @@ func (c *managerClient) Status(ctx context.Context, in *StatusRequest, opts ...g
 	return out, nil
 }
 
+func (c *managerClient) Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error) {
+	out := new(StopResponse)
+	err := c.cc.Invoke(ctx, "/public.Manager/Stop", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managerClient) Quit(ctx context.Context, in *QuitRequest, opts ...grpc.CallOption) (*QuitResponse, error) {
+	out := new(QuitResponse)
+	err := c.cc.Invoke(ctx, "/public.Manager/Quit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ManagerServer is the server API for Manager service.
 type ManagerServer interface {
 	Start(context.Context, *StartRequest) (*StartResponse, error)
-	Stop(context.Context, *StopRequest) (*StopResponse, error)
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
+	Stop(context.Context, *StopRequest) (*StopResponse, error)
+	Quit(context.Context, *QuitRequest) (*QuitResponse, error)
 }
 
 func RegisterManagerServer(s *grpc.Server, srv ManagerServer) {
@@ -454,24 +527,6 @@ func _Manager_Start_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Manager_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StopRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagerServer).Stop(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/public.Manager/Stop",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagerServer).Stop(ctx, req.(*StopRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Manager_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StatusRequest)
 	if err := dec(in); err != nil {
@@ -490,6 +545,42 @@ func _Manager_Status_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Manager_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServer).Stop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/public.Manager/Stop",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServer).Stop(ctx, req.(*StopRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Manager_Quit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServer).Quit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/public.Manager/Quit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServer).Quit(ctx, req.(*QuitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Manager_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "public.Manager",
 	HandlerType: (*ManagerServer)(nil),
@@ -499,48 +590,53 @@ var _Manager_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Manager_Start_Handler,
 		},
 		{
+			MethodName: "Status",
+			Handler:    _Manager_Status_Handler,
+		},
+		{
 			MethodName: "Stop",
 			Handler:    _Manager_Stop_Handler,
 		},
 		{
-			MethodName: "Status",
-			Handler:    _Manager_Status_Handler,
+			MethodName: "Quit",
+			Handler:    _Manager_Quit_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "public/public.proto",
 }
 
-func init() { proto.RegisterFile("public/public.proto", fileDescriptor_public_29c1bdf55593692d) }
+func init() { proto.RegisterFile("public/public.proto", fileDescriptor_public_a473164aa70c97a7) }
 
-var fileDescriptor_public_29c1bdf55593692d = []byte{
-	// 434 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0x41, 0x6f, 0xda, 0x30,
-	0x14, 0x80, 0x49, 0x0a, 0x99, 0xf4, 0x68, 0x83, 0xf5, 0xa0, 0x13, 0xea, 0x09, 0xe5, 0x30, 0x21,
-	0x26, 0x81, 0x44, 0xb5, 0xa9, 0x3b, 0x66, 0x69, 0x36, 0xd0, 0x58, 0x60, 0x76, 0xa2, 0x69, 0xbb,
-	0x54, 0x81, 0x7a, 0x80, 0xd6, 0x12, 0x96, 0x38, 0xe7, 0xfd, 0xa6, 0xfd, 0xc3, 0x29, 0xb1, 0x1d,
-	0x32, 0x4e, 0x3b, 0x39, 0xef, 0xf3, 0xf7, 0x9e, 0x2d, 0xbf, 0x17, 0xe8, 0x1e, 0xf3, 0xf5, 0xd3,
-	0x7e, 0x33, 0x91, 0xcb, 0xf8, 0x98, 0x26, 0x22, 0x41, 0x4b, 0x46, 0xce, 0x1d, 0x5c, 0x32, 0x11,
-	0xa7, 0x82, 0xf2, 0x5f, 0x39, 0xcf, 0x04, 0xf6, 0xa0, 0x15, 0x65, 0x3c, 0xcd, 0xfa, 0xc6, 0xc0,
-	0x18, 0xb6, 0xa8, 0x0c, 0x10, 0xa1, 0x49, 0x63, 0xc1, 0xfb, 0xe6, 0xc0, 0x18, 0x1a, 0xb4, 0xfc,
-	0x76, 0x3a, 0x70, 0xa5, 0x32, 0xb3, 0x63, 0x72, 0xc8, 0xb8, 0x73, 0x05, 0x6d, 0x26, 0x92, 0xa3,
-	0xaa, 0xe4, 0xd8, 0x45, 0xe5, 0x22, 0x54, 0xdb, 0xd2, 0x17, 0x79, 0xa6, 0x05, 0x0e, 0xb6, 0x06,
-	0x52, 0xc1, 0x57, 0x60, 0x49, 0x52, 0x9e, 0x6e, 0x4f, 0xed, 0xb1, 0xba, 0xb3, 0xf2, 0xd4, 0x2e,
-	0xbe, 0x06, 0xcb, 0xdd, 0xf2, 0x83, 0xc8, 0xfa, 0xe6, 0xe0, 0x62, 0xd8, 0x9e, 0x76, 0xb5, 0x57,
-	0x52, 0x2d, 0x4b, 0xc5, 0x79, 0x03, 0xed, 0x1a, 0xfe, 0xdf, 0x33, 0x46, 0xbf, 0xb5, 0x87, 0x08,
-	0x36, 0x0b, 0xdd, 0x30, 0x62, 0x0f, 0x51, 0xf0, 0x29, 0x58, 0x7e, 0x0d, 0x48, 0x03, 0x3b, 0xd0,
-	0x56, 0x6c, 0x7e, 0xbf, 0xf0, 0x89, 0x51, 0x93, 0x98, 0xe7, 0x2e, 0xe6, 0xc1, 0x47, 0x62, 0xd6,
-	0x18, 0x8d, 0x82, 0xa0, 0x60, 0x17, 0xd8, 0x85, 0x8e, 0xf6, 0xc2, 0xe5, 0x6a, 0x55, 0xc0, 0x66,
-	0x0d, 0x7e, 0x89, 0xe6, 0x61, 0x58, 0xc0, 0xd6, 0xe8, 0x03, 0x58, 0x33, 0x1e, 0x3f, 0x89, 0x5d,
-	0x51, 0x67, 0xe6, 0xbb, 0x8b, 0x70, 0x56, 0xbb, 0xc0, 0x89, 0xc9, 0xe5, 0x1b, 0x31, 0xb0, 0x07,
-	0xa4, 0xf2, 0x34, 0x35, 0x47, 0x77, 0xd0, 0xf4, 0x92, 0x47, 0x8e, 0x04, 0x2e, 0xbd, 0xe5, 0xbd,
-	0xff, 0xc0, 0x22, 0xcf, 0xf3, 0x19, 0x23, 0x0d, 0xb4, 0x01, 0x4a, 0xe2, 0x53, 0xba, 0xa4, 0xc4,
-	0xa8, 0xe2, 0x95, 0x1b, 0xcc, 0x3d, 0x62, 0x4e, 0xff, 0x18, 0xf0, 0xe2, 0x73, 0x7c, 0x88, 0xb7,
-	0x3c, 0xc5, 0xb7, 0xd0, 0x2a, 0xbb, 0x8d, 0xbd, 0xda, 0x7b, 0x55, 0x63, 0x73, 0x73, 0x7d, 0x46,
-	0x55, 0xcf, 0x1b, 0x78, 0x0b, 0xcd, 0x62, 0x0a, 0xb0, 0x7b, 0x12, 0xaa, 0x11, 0xb9, 0xe9, 0xfd,
-	0x0b, 0xab, 0xa4, 0x77, 0xd5, 0xdb, 0x5f, 0x9f, 0x75, 0x47, 0x25, 0xbe, 0x3c, 0xc7, 0x3a, 0xf5,
-	0xfd, 0xe8, 0xfb, 0x70, 0xbb, 0x17, 0xbb, 0x7c, 0x3d, 0xde, 0x24, 0xcf, 0x93, 0xcd, 0xee, 0xf9,
-	0xe7, 0xfe, 0xb0, 0x9d, 0xec, 0x92, 0xf4, 0x91, 0x4f, 0xca, 0xc9, 0x5f, 0xe7, 0x3f, 0xd4, 0x9f,
-	0xb0, 0xb6, 0x4a, 0x70, 0xfb, 0x37, 0x00, 0x00, 0xff, 0xff, 0x53, 0xe5, 0xcf, 0x64, 0x21, 0x03,
-	0x00, 0x00,
+var fileDescriptor_public_a473164aa70c97a7 = []byte{
+	// 458 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0x4f, 0x6f, 0xda, 0x30,
+	0x18, 0xc6, 0x49, 0x0a, 0x99, 0xf4, 0xa6, 0x04, 0xeb, 0x85, 0x4e, 0xa8, 0x27, 0x94, 0xc3, 0x84,
+	0x98, 0x04, 0x12, 0xd5, 0xa6, 0xee, 0x98, 0xa5, 0xd9, 0x40, 0x63, 0x81, 0xe6, 0x8f, 0xa6, 0xed,
+	0x52, 0x05, 0xea, 0x01, 0x5a, 0x4b, 0x58, 0xe2, 0x9c, 0xf7, 0x6d, 0xf7, 0x39, 0xa6, 0xc4, 0x76,
+	0xf0, 0x38, 0xf5, 0xe4, 0xbc, 0x3f, 0x3f, 0x8f, 0xed, 0xbc, 0x8f, 0x0d, 0xdd, 0x63, 0xb1, 0x7e,
+	0xda, 0x6f, 0x26, 0x7c, 0x18, 0x1f, 0xb3, 0x94, 0xa5, 0x68, 0xf0, 0xca, 0xbe, 0x85, 0xcb, 0x90,
+	0x25, 0x19, 0x0b, 0xe8, 0xef, 0x82, 0xe6, 0x0c, 0x7b, 0xd0, 0x8a, 0x73, 0x9a, 0xe5, 0x7d, 0x6d,
+	0xa0, 0x0d, 0x5b, 0x01, 0x2f, 0x10, 0xa1, 0x19, 0x24, 0x8c, 0xf6, 0xf5, 0x81, 0x36, 0xd4, 0x82,
+	0xea, 0xdb, 0xee, 0x40, 0x5b, 0x38, 0xf3, 0x63, 0x7a, 0xc8, 0x25, 0x60, 0x45, 0x2e, 0xd6, 0xb2,
+	0x29, 0x58, 0x12, 0x70, 0x09, 0xbe, 0x01, 0x83, 0x93, 0x6a, 0x79, 0x6b, 0x6a, 0x8d, 0xc5, 0xa1,
+	0x84, 0x4e, 0xcc, 0xe2, 0x5b, 0x30, 0x9c, 0x2d, 0x3d, 0xb0, 0xbc, 0xaf, 0x0f, 0x2e, 0x86, 0xe6,
+	0xb4, 0x2b, 0x75, 0x15, 0x95, 0x62, 0x2e, 0xb1, 0xdf, 0x81, 0xa9, 0xe0, 0x97, 0xee, 0x61, 0xb7,
+	0xc1, 0x0c, 0x59, 0x7a, 0x94, 0x87, 0xb5, 0xca, 0x46, 0x94, 0xa5, 0xf8, 0x9b, 0x36, 0x98, 0xf7,
+	0xc5, 0x9e, 0x29, 0xd3, 0xbc, 0xe4, 0xd3, 0xa3, 0x3f, 0x72, 0x17, 0x44, 0xb0, 0xc2, 0xc8, 0x89,
+	0xe2, 0xf0, 0x21, 0xf6, 0xbf, 0xf8, 0xcb, 0x6f, 0x3e, 0x69, 0x60, 0x07, 0x4c, 0xc1, 0xe6, 0x77,
+	0x0b, 0x8f, 0x68, 0x8a, 0x28, 0x74, 0x9d, 0xc5, 0xdc, 0xff, 0x4c, 0x74, 0x85, 0x05, 0xb1, 0xef,
+	0x97, 0xec, 0x02, 0xbb, 0xd0, 0x91, 0xba, 0x68, 0xb9, 0x5a, 0x95, 0xb0, 0xa9, 0xc0, 0xfb, 0x78,
+	0x1e, 0x45, 0x25, 0x6c, 0x8d, 0x3e, 0x81, 0x31, 0xa3, 0xc9, 0x13, 0xdb, 0x95, 0xeb, 0xcc, 0x3c,
+	0x67, 0x11, 0xcd, 0x94, 0x03, 0x9c, 0x18, 0x1f, 0xbe, 0x13, 0x0d, 0x7b, 0x40, 0x6a, 0x9d, 0xa4,
+	0xfa, 0xe8, 0x16, 0x9a, 0x6e, 0xfa, 0x48, 0x91, 0xc0, 0xa5, 0xbb, 0xbc, 0xf3, 0x1e, 0xc2, 0xd8,
+	0x75, 0xbd, 0x30, 0x24, 0x0d, 0xb4, 0x00, 0x2a, 0xe2, 0x05, 0xc1, 0x32, 0x20, 0x5a, 0x5d, 0xaf,
+	0x1c, 0x7f, 0xee, 0x12, 0x7d, 0xfa, 0x57, 0x83, 0x57, 0x5f, 0x93, 0x43, 0xb2, 0xa5, 0x19, 0xbe,
+	0x87, 0x56, 0x75, 0x19, 0xb0, 0xa7, 0x74, 0xbb, 0xbe, 0x55, 0xd7, 0x57, 0x67, 0x54, 0xf4, 0xb8,
+	0x81, 0x1f, 0xea, 0x36, 0x5e, 0x9d, 0xc5, 0x24, 0x9c, 0xaf, 0xcf, 0x71, 0x6d, 0xbd, 0x81, 0x66,
+	0x19, 0x18, 0x76, 0x4f, 0x8a, 0x3a, 0xcd, 0xeb, 0xde, 0xff, 0x50, 0x35, 0x95, 0x31, 0x9e, 0x4c,
+	0x4a, 0xc6, 0x27, 0x93, 0x9a, 0xb4, 0xdd, 0xf8, 0x38, 0xfa, 0x31, 0xdc, 0xee, 0xd9, 0xae, 0x58,
+	0x8f, 0x37, 0xe9, 0xf3, 0x64, 0xb3, 0x7b, 0xfe, 0xb5, 0x3f, 0x6c, 0x27, 0xbb, 0x34, 0x7b, 0xa4,
+	0x93, 0xea, 0x35, 0xad, 0x8b, 0x9f, 0xe2, 0x75, 0xad, 0x8d, 0x0a, 0xdc, 0xfc, 0x0b, 0x00, 0x00,
+	0xff, 0xff, 0xfe, 0x05, 0xbd, 0xfa, 0x75, 0x03, 0x00, 0x00,
 }

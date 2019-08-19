@@ -8,6 +8,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/chmking/horde/manager"
 )
@@ -19,13 +20,16 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	go func() {
-		m := manager.New()
-		log.Fatal(m.Listen(ctx))
-	}()
-
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
+
+	go func() {
+		m := manager.New()
+		if err := m.Listen(ctx); err != nil {
+			log.Print(err)
+		}
+		c <- syscall.SIGQUIT
+	}()
 
 	s := <-c
 	fmt.Println("Got signal:", s)

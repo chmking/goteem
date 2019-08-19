@@ -41,9 +41,13 @@ type Agent struct {
 	sm       stateMachine
 	server   *grpc.Server
 	mtx      sync.Mutex
+
+	cancel context.CancelFunc
 }
 
 func (a *Agent) Listen(ctx context.Context) error {
+	ctx, a.cancel = context.WithCancel(ctx)
+
 	if err := a.sm.Idle(); err != nil {
 		return err
 	}
@@ -147,6 +151,13 @@ func (a *Agent) Stop(ctx context.Context, req *pb.StopRequest) (*pb.StopResponse
 
 func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse, error) {
 	log.Println("Received private.QuitRequest")
+
+	if err := a.sm.Stopping(); err != nil {
+		return nil, err
+	}
+
+	defer a.cancel()
+
 	return &pb.QuitResponse{}, nil
 }
 

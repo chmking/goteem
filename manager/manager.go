@@ -21,13 +21,6 @@ func New() *Manager {
 	}
 }
 
-type stateMachine interface {
-	Idle() error
-	Scaling() error
-	Stopping() error
-	State() public.Status
-}
-
 type agentRegistry struct {
 	Host string
 	Port string
@@ -39,9 +32,10 @@ type agentRegistry struct {
 type Manager struct {
 	buffer *tsbuffer.Buffer
 	agents []*agentRegistry
-	sm     stateMachine
+	sm     *state.StateMachine
 	mtx    sync.Mutex
 
+	cancel      context.CancelFunc
 	tallyCancel context.CancelFunc
 }
 
@@ -104,6 +98,31 @@ func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.St
 	return &public.StopResponse{}, nil
 }
 
+func (m *Manager) Quit(ctx context.Context, req *public.QuitRequest) (*public.QuitResponse, error) {
+	log.Println("Received request to quit")
+
+	if m.tallyCancel != nil {
+		m.tallyCancel()
+		m.tallyCancel = nil
+	}
+
+	if err := m.sm.Quitting(); err != nil {
+		return nil, err
+	}
+
+	m.mtx.Lock()
+	for _, agent := range m.agents {
+		agent.Client.Quit(ctx, &private.QuitRequest{})
+	}
+	m.mtx.Unlock()
+
+	defer func() {
+		m.cancel()
+	}()
+
+	return &public.QuitResponse{}, nil
+}
+
 func (m *Manager) Status(ctx context.Context, req *public.StatusRequest) (*public.StatusResponse, error) {
 	resp := &public.StatusResponse{
 		Status: m.sm.State(),
@@ -144,6 +163,8 @@ func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*
 }
 
 func (m *Manager) Listen(ctx context.Context) error {
+	ctx, m.cancel = context.WithCancel(ctx)
+
 	if err := m.sm.Idle(); err != nil {
 		return err
 	}
