@@ -146,9 +146,11 @@ func (m *Manager) Status(ctx context.Context, req *public.StatusRequest) (*publi
 }
 
 func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*private.RegisterResponse, error) {
-	host := req.Host + ":" + req.Port
+	log.Printf("Receivied regitration request: %+v", req)
 
-	conn, err := grpc.Dial(host,
+	address := req.Host + ":" + req.Port
+
+	conn, err := grpc.Dial(address,
 		grpc.WithBackoffMaxDelay(time.Second),
 		grpc.WithInsecure())
 	if err != nil {

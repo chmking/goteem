@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,6 +15,16 @@ import (
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/agent"
 )
+
+func init() {
+	// Register the agent flags
+	agent.Flags()
+
+	// Add additional flags
+
+	// Parse all flags
+	flag.Parse()
+}
 
 func main() {
 	// task := &horde.Task{
@@ -60,8 +71,9 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
+	agent := agent.New(config)
+
 	go func() {
-		agent := agent.New(config)
 		if err := agent.Listen(ctx); err != nil {
 			log.Print(err)
 		}

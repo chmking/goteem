@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/chmking/horde"
+	"github.com/chmking/horde/helpers"
 	pb "github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
 	"github.com/chmking/horde/recorder"
@@ -26,7 +27,15 @@ type stateMachine interface {
 }
 
 func New(config horde.Config) *Agent {
+	uuid := helpers.MustUUID()
+	hostname := helpers.MustHostname()
+
 	return &Agent{
+		id:       hostname + "_" + uuid,
+		hostname: hostname,
+		host:     agentHost,
+		port:     agentPort,
+
 		config:   config,
 		recorder: recorder.New(),
 		session:  &sess.Session{},
@@ -35,6 +44,11 @@ func New(config horde.Config) *Agent {
 }
 
 type Agent struct {
+	id       string
+	hostname string
+	host     string
+	port     string
+
 	config   horde.Config
 	recorder *recorder.Recorder
 	session  *session.Session
@@ -71,13 +85,14 @@ func (a *Agent) Listen(ctx context.Context) error {
 
 func (a *Agent) listenAndServePrivate(errs chan<- error) {
 	go func() {
-		lis, err := net.Listen("tcp", ":5558")
+		address := ":" + a.port
+		lis, err := net.Listen("tcp", address)
 		if err != nil {
 			errs <- err
 			return
 		}
 
-		log.Println("Listening for private connection on :5558")
+		log.Printf("Listening for private connection on %s\n", address)
 
 		a.server = grpc.NewServer()
 		pb.RegisterAgentServer(a.server, a)
@@ -87,7 +102,8 @@ func (a *Agent) listenAndServePrivate(errs chan<- error) {
 
 func (a *Agent) dialManager(ctx context.Context, errs chan<- error) {
 	go func() {
-		conn, err := grpc.Dial("127.0.0.1:5557",
+		address := managerHost + ":" + managerPort
+		conn, err := grpc.Dial(address,
 			grpc.WithBackoffMaxDelay(time.Second),
 			grpc.WithInsecure(),
 			grpc.WithBlock())
@@ -99,8 +115,10 @@ func (a *Agent) dialManager(ctx context.Context, errs chan<- error) {
 		client := pb.NewManagerClient(conn)
 
 		req := &pb.RegisterRequest{
-			Host: "127.0.0.1",
-			Port: "5558",
+			Id:       a.id,
+			Hostname: a.hostname,
+			Host:     a.host,
+			Port:     a.port,
 		}
 
 		_, err = client.Register(ctx, req)

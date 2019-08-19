@@ -41,8 +41,10 @@ message HeartbeatResponse{
 }
 
 message RegisterRequest{
-  string Host = 1;
-  string Port = 2;
+  string Id       = 1;
+  string Hostname = 2;
+  string Host     = 3;
+  string Port     = 4;
 }
 
 message RegisterResponse{}
