@@ -60,6 +60,15 @@ var _ = Describe("Registry", func() {
 				Expect(r.GetActive()[0]).To(BeEquivalentTo(agent))
 			})
 
+			It("triggers the callback", func() {
+				triggered := false
+				r.RegisterCallback(func() {
+					triggered = true
+				})
+				r.Add(agent)
+				Expect(triggered).To(BeTrue())
+			})
+
 			It("does not return an error", func() {
 				err := r.Add(agent)
 				Expect(err).To(BeNil())
@@ -140,7 +149,16 @@ var _ = Describe("Registry", func() {
 					Expect(active).To(ContainElement(agent))
 				})
 
-				It("does not return and error", func() {
+				It("triggers the callback", func() {
+					triggered := false
+					r.RegisterCallback(func() {
+						triggered = true
+					})
+					r.Quarantine(agent.Id)
+					Expect(triggered).To(BeTrue())
+				})
+
+				It("does not return an error", func() {
 					err := r.Quarantine("foo")
 					Expect(err).To(BeNil())
 				})
@@ -341,6 +359,15 @@ var _ = Describe("Registry", func() {
 					quarantined := r.GetQuarantined()
 					Expect(quarantined).To(ContainElement(agent))
 				})
+
+				It("triggers the callback", func() {
+					triggered := false
+					r.RegisterCallback(func() {
+						triggered = true
+					})
+					r.Healthcheck()
+					Expect(triggered).To(BeTrue())
+				})
 			})
 		})
 
@@ -385,6 +412,15 @@ var _ = Describe("Registry", func() {
 					r.Healthcheck()
 					active := r.GetActive()
 					Expect(active).To(ContainElement(agent))
+				})
+
+				It("triggers the callback", func() {
+					triggered := false
+					r.RegisterCallback(func() {
+						triggered = true
+					})
+					r.Healthcheck()
+					Expect(triggered).To(BeTrue())
 				})
 			})
 		})

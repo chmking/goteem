@@ -22,6 +22,7 @@ type Registry struct {
 	active     map[string]struct{}
 	quarantine map[string]struct{}
 	mtx        sync.Mutex
+	cb         func()
 }
 
 type Metadata struct {
@@ -34,6 +35,10 @@ func NewRegistry() *Registry {
 		active:     map[string]struct{}{},
 		quarantine: map[string]struct{}{},
 	}
+}
+
+func (r *Registry) RegisterCallback(cb func()) {
+	r.cb = cb
 }
 
 func (r *Registry) Len() int {
@@ -56,6 +61,11 @@ func (r *Registry) Add(regis Registration) error {
 
 	r.agents = append(r.agents, &Metadata{Registration: regis})
 	r.active[regis.Id] = struct{}{}
+
+	if r.cb != nil {
+		r.cb()
+	}
+
 	return nil
 }
 
@@ -70,7 +80,12 @@ func (r *Registry) Quarantine(id string) error {
 		for _, metadata := range r.agents {
 			if metadata.Registration.Id == id {
 				metadata.Failed = 3
+				break
 			}
+		}
+
+		if r.cb != nil {
+			r.cb()
 		}
 
 		return nil
@@ -145,6 +160,7 @@ func (r *Registry) Healthcheck() {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 
+	adjusted := false
 	for _, metadata := range r.agents {
 		client := metadata.Registration.Client
 		_, err := client.Heartbeat(context.Background(), &private.HeartbeatRequest{})
@@ -156,6 +172,7 @@ func (r *Registry) Healthcheck() {
 					log.Println("Quarantining unhealthy client")
 					delete(r.active, metadata.Registration.Id)
 					r.quarantine[metadata.Registration.Id] = struct{}{}
+					adjusted = true
 				}
 			}
 		} else {
@@ -166,9 +183,14 @@ func (r *Registry) Healthcheck() {
 					log.Println("Activating healthy client")
 					delete(r.quarantine, metadata.Registration.Id)
 					r.active[metadata.Registration.Id] = struct{}{}
+					adjusted = true
 				}
 			}
 		}
+	}
+
+	if adjusted && r.cb != nil {
+		r.cb()
 	}
 }
 
