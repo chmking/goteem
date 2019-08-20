@@ -3,6 +3,7 @@ module github.com/chmking/horde
 go 1.12
 
 require (
+	github.com/golang/mock v1.1.1
 	github.com/golang/protobuf v1.2.0
 	github.com/google/pprof v0.0.0-20190723021845-34ac40c74b70 // indirect
 	github.com/google/uuid v1.1.1

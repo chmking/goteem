@@ -1,3 +1,4 @@
+//go:generate mockgen -package=manager_test -destination=mock_private_test.go github.com/chmking/horde/protobuf/private AgentClient
 package manager_test
 
 import (
