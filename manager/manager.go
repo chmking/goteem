@@ -21,6 +21,7 @@ func New() *Manager {
 		sm:       &state.StateMachine{},
 	}
 
+	manager.registry.RegisterCallback(manager.Rebalance)
 	manager.registry.BeginHealthcheck(context.Background())
 
 	return manager
@@ -173,6 +174,16 @@ func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*
 	m.registry.Add(regis)
 
 	return &private.RegisterResponse{}, nil
+}
+
+func (m *Manager) Rebalance() {
+	current := m.sm.State()
+	if current != public.Status_STATUS_RUNNING &&
+		current != public.Status_STATUS_SCALING {
+		return
+	}
+
+	// TODO: Rebalance work
 }
 
 func (m *Manager) Listen(ctx context.Context) error {
