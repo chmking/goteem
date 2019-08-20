@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/chmking/horde/helpers"
 	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
 	"github.com/chmking/horde/state"
@@ -43,12 +44,20 @@ type stateMachine interface {
 	State() public.Status
 }
 
+type WorkOrder struct {
+	Id    string
+	Users int
+	Rate  float64
+}
+
 type Manager struct {
 	registry *Registry
 	buffer   *tsbuffer.Buffer
 	agents   []*agentRegistry
 	sm       stateMachine
 	mtx      sync.Mutex
+
+	current WorkOrder
 
 	cancel      context.CancelFunc
 	tallyCancel context.CancelFunc
@@ -61,24 +70,22 @@ func (m *Manager) State() public.Status {
 func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.StartResponse, error) {
 	log.Println("Receieved request to start")
 
+	currentState := m.sm.State()
+
 	if err := m.sm.Scaling(); err != nil {
 		return nil, err
 	}
 
-	m.mtx.Lock()
-	for _, agent := range m.agents {
-		scaleReq := &private.ScaleRequest{
-			Users: req.Users,
-			Rate:  req.Rate,
-		}
-
-		_, err := agent.Client.Scale(ctx, scaleReq)
-		if err != nil {
-			// agent should be quarantined
-			log.Print(err)
+	if currentState == public.Status_STATUS_IDLE {
+		m.current = WorkOrder{
+			Id: helpers.MustUUID(),
 		}
 	}
-	m.mtx.Unlock()
+
+	m.current.Users = int(req.Users)
+	m.current.Rate = req.Rate
+
+	m.AssignWorkOrder(ctx, m.current)
 
 	tallyCtx, cancel := context.WithCancel(context.Background())
 	m.tallyCancel = cancel
@@ -88,27 +95,59 @@ func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.
 	return &public.StartResponse{}, nil
 }
 
+func (m *Manager) AssignWorkOrder(ctx context.Context, order WorkOrder) {
+	active := m.registry.GetActive()
+	activeLen := len(active)
+
+	if order.Users < activeLen {
+		activeLen = order.Users
+	}
+
+	allotment := order.Users / activeLen
+	remainder := order.Users % activeLen
+	increment := int64(float64(time.Second.Nanoseconds()) / order.Rate)
+
+	for i := 0; i < activeLen; i++ {
+		users := allotment
+		if i < remainder {
+			users = users + 1
+		}
+		rate := int64(activeLen) * increment
+		wait := int64(i) * increment
+
+		req := &private.ScaleRequest{
+			Users: int32(users),
+			Rate:  rate,
+			Wait:  wait,
+		}
+
+		agent := active[0]
+		_, err := agent.Client.Scale(ctx, req)
+		if err != nil {
+			// TODO: Quarantine agent
+		}
+	}
+}
+
 func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.StopResponse, error) {
 	log.Println("Received request to stop")
+
+	if err := m.sm.Stopping(); err != nil {
+		return nil, err
+	}
 
 	if m.tallyCancel != nil {
 		m.tallyCancel()
 		m.tallyCancel = nil
 	}
 
-	if err := m.sm.Stopping(); err != nil {
-		return nil, err
-	}
-
-	m.mtx.Lock()
-	for _, agent := range m.agents {
-		_, err := agent.Client.Stop(ctx, &private.StopRequest{})
+	all := m.registry.GetAll()
+	for _, agent := range all {
+		_, err := agent.Client.Stop(context.Background(), &private.StopRequest{})
 		if err != nil {
-			// agent should be quarantined
 			log.Print(err)
 		}
 	}
-	m.mtx.Unlock()
 
 	return &public.StopResponse{}, nil
 }
@@ -116,20 +155,22 @@ func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.St
 func (m *Manager) Quit(ctx context.Context, req *public.QuitRequest) (*public.QuitResponse, error) {
 	log.Println("Received request to quit")
 
+	if err := m.sm.Quitting(); err != nil {
+		return nil, err
+	}
+
 	if m.tallyCancel != nil {
 		m.tallyCancel()
 		m.tallyCancel = nil
 	}
 
-	if err := m.sm.Quitting(); err != nil {
-		return nil, err
+	all := m.registry.GetAll()
+	for _, agent := range all {
+		_, err := agent.Client.Quit(context.Background(), &private.QuitRequest{})
+		if err != nil {
+			log.Print(err)
+		}
 	}
-
-	m.mtx.Lock()
-	for _, agent := range m.agents {
-		agent.Client.Quit(ctx, &private.QuitRequest{})
-	}
-	m.mtx.Unlock()
 
 	defer func() {
 		m.cancel()
@@ -183,7 +224,7 @@ func (m *Manager) Rebalance() {
 		return
 	}
 
-	// TODO: Rebalance work
+	m.AssignWorkOrder(context.Background(), m.current)
 }
 
 func (m *Manager) Listen(ctx context.Context) error {

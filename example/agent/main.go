@@ -54,6 +54,7 @@ func main() {
 			recorder := horde.RecorderFrom(ctx)
 
 			start := time.Now()
+			log.Println("Sample")
 			elapsed := time.Since(start).Nanoseconds() / 1e6
 
 			recorder.Success("GET", "http://google.com", elapsed)
@@ -62,8 +63,8 @@ func main() {
 
 	config := horde.Config{
 		Tasks:   []*horde.Task{simple},
-		WaitMin: 100,
-		WaitMax: 150,
+		WaitMin: 1000,
+		WaitMax: 1000,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

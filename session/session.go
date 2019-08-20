@@ -14,7 +14,7 @@ type Callback func()
 
 type ScaleOrder struct {
 	Count int32
-	Rate  float64
+	Rate  int64
 	Wait  int64
 	Work  Work
 
@@ -112,10 +112,11 @@ func (s *Session) scaleUp(ctx context.Context, order ScaleOrder) {
 			s.mtx.Unlock()
 
 			// Start worker
+			log.Println("Spawning worker")
 			go s.doWork(workerCtx, order.Work)
 
 			// Wait for rate limit
-			limit := time.Duration(float64(time.Second.Nanoseconds()) * order.Rate)
+			limit := time.Duration(order.Rate)
 			<-time.After(limit)
 		}
 	}
@@ -192,5 +193,11 @@ func minInt64(lhs, rhs int64) int64 {
 }
 
 func (s *Session) Stop(cb Callback) {
+	s.mtx.Lock()
+	for _, cancel := range s.workers {
+		cancel()
+	}
+	s.mtx.Unlock()
+
 	defer cb()
 }

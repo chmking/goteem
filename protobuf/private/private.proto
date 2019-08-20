@@ -19,7 +19,7 @@ service Manager {
 
 message ScaleRequest {
   int32  Users = 1;
-  double Rate  = 2;
+  int64  Rate  = 2;
   int64  Wait  = 3;
 }
 
