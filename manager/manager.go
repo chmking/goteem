@@ -15,10 +15,15 @@ import (
 )
 
 func New() *Manager {
-	return &Manager{
-		buffer: tsbuffer.New(time.Second * 5),
-		sm:     &state.StateMachine{},
+	manager := &Manager{
+		registry: NewRegistry(),
+		buffer:   tsbuffer.New(time.Second * 5),
+		sm:       &state.StateMachine{},
 	}
+
+	manager.registry.BeginHealthcheck(context.Background())
+
+	return manager
 }
 
 type agentRegistry struct {
@@ -38,10 +43,11 @@ type stateMachine interface {
 }
 
 type Manager struct {
-	buffer *tsbuffer.Buffer
-	agents []*agentRegistry
-	sm     stateMachine
-	mtx    sync.Mutex
+	registry *Registry
+	buffer   *tsbuffer.Buffer
+	agents   []*agentRegistry
+	sm       stateMachine
+	mtx      sync.Mutex
 
 	cancel      context.CancelFunc
 	tallyCancel context.CancelFunc
@@ -158,16 +164,13 @@ func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*
 		return nil, err
 	}
 
-	registry := &agentRegistry{
-		Host:   req.Host,
-		Port:   req.Port,
+	regis := Registration{
+		Id:     req.Id,
 		Client: private.NewAgentClient(conn),
 	}
 
-	m.mtx.Lock()
-	log.Printf("Adding agent to registry: %+v\n", registry)
-	m.agents = append(m.agents, registry)
-	m.mtx.Unlock()
+	log.Printf("Adding agent to registry: %+v\n", regis)
+	m.registry.Add(regis)
 
 	return &private.RegisterResponse{}, nil
 }

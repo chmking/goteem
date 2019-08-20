@@ -160,6 +160,7 @@ var _ = Describe("Registry", func() {
 			var expected []Registration
 
 			BeforeEach(func() {
+				expected = nil
 				for i := 0; i < 5; i++ {
 					agent := Registration{Id: strconv.Itoa(i)}
 
@@ -196,6 +197,7 @@ var _ = Describe("Registry", func() {
 			var active []Registration
 
 			BeforeEach(func() {
+				active = nil
 				for i := 0; i < 5; i++ {
 					agent := Registration{Id: strconv.Itoa(i)}
 					active = append(active, agent)
@@ -212,6 +214,7 @@ var _ = Describe("Registry", func() {
 				var quarantined []Registration
 
 				BeforeEach(func() {
+					quarantined = nil
 					for i := 5; i < 10; i++ {
 						agent := Registration{Id: strconv.Itoa(i)}
 						quarantined = append(quarantined, agent)
@@ -242,6 +245,7 @@ var _ = Describe("Registry", func() {
 			var quarantined []Registration
 
 			BeforeEach(func() {
+				quarantined = nil
 				for i := 0; i < 5; i++ {
 					agent := Registration{Id: strconv.Itoa(i)}
 

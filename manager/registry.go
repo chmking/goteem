@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/chmking/horde/protobuf/private"
@@ -19,6 +20,7 @@ type Registry struct {
 	agents     []*Metadata
 	active     map[string]struct{}
 	quarantine map[string]struct{}
+	mtx        sync.Mutex
 }
 
 type Metadata struct {
@@ -34,10 +36,16 @@ func NewRegistry() *Registry {
 }
 
 func (r *Registry) Len() int {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	return len(r.agents)
 }
 
 func (r *Registry) Add(regis Registration) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	_, isActive := r.active[regis.Id]
 	_, isQuarantined := r.quarantine[regis.Id]
 
@@ -51,6 +59,9 @@ func (r *Registry) Add(regis Registration) error {
 }
 
 func (r *Registry) Quarantine(id string) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	if _, ok := r.active[id]; ok {
 		delete(r.active, id)
 		r.quarantine[id] = struct{}{}
@@ -72,6 +83,9 @@ func (r *Registry) Quarantine(id string) error {
 }
 
 func (r *Registry) GetAll() []Registration {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	var result []Registration
 
 	if len(r.agents) == 0 {
@@ -87,6 +101,9 @@ func (r *Registry) GetAll() []Registration {
 }
 
 func (r *Registry) GetActive() []Registration {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	var result []Registration
 
 	if len(r.active) == 0 {
@@ -104,6 +121,9 @@ func (r *Registry) GetActive() []Registration {
 }
 
 func (r *Registry) GetQuarantined() []Registration {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	var result []Registration
 
 	if len(r.quarantine) == 0 {
@@ -121,6 +141,9 @@ func (r *Registry) GetQuarantined() []Registration {
 }
 
 func (r *Registry) Healthcheck() {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	for _, metadata := range r.agents {
 		client := metadata.Registration.Client
 		_, err := client.Heartbeat(context.Background(), &private.HeartbeatRequest{})
