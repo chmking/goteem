@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"log"
 	"sync"
 	"time"
 
@@ -152,6 +153,7 @@ func (r *Registry) Healthcheck() {
 			if metadata.Failed == 3 {
 				_, isActive := r.active[metadata.Registration.Id]
 				if isActive {
+					log.Println("Quarantining unhealthy client")
 					delete(r.active, metadata.Registration.Id)
 					r.quarantine[metadata.Registration.Id] = struct{}{}
 				}
@@ -161,6 +163,7 @@ func (r *Registry) Healthcheck() {
 			if metadata.Failed == 0 {
 				_, isQuarantined := r.quarantine[metadata.Registration.Id]
 				if isQuarantined {
+					log.Println("Activating healthy client")
 					delete(r.quarantine, metadata.Registration.Id)
 					r.active[metadata.Registration.Id] = struct{}{}
 				}
@@ -179,7 +182,7 @@ func (r *Registry) BeginHealthcheck(ctx context.Context) {
 				r.Healthcheck()
 			}
 
-			<-time.After(time.Second * 30)
+			<-time.After(time.Second * 10)
 		}
 	}()
 }
