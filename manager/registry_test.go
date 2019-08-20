@@ -29,8 +29,8 @@ var _ = Describe("Registry", func() {
 
 		Context("when there are registered agents", func() {
 			BeforeEach(func() {
-				agent := Registration{}
 				for i := 0; i < 5; i++ {
+					agent := Registration{Id: strconv.Itoa(i)}
 					r.Add(agent)
 				}
 			})
@@ -67,12 +67,26 @@ var _ = Describe("Registry", func() {
 		})
 
 		Context("when the agent is already in the registry", func() {
-			PContext("and is active", func() {
-
+			BeforeEach(func() {
+				r.Add(agent)
 			})
 
-			PContext("and it quarantined", func() {
+			Context("and is active", func() {
+				It("does not add a duplicate", func() {
+					r.Add(agent)
+					Expect(r.Len()).To(BeNumerically("==", 1))
+				})
+			})
 
+			Context("and is quarantined", func() {
+				BeforeEach(func() {
+					r.Quarantine(agent.Id)
+				})
+
+				It("does not add a duplicate", func() {
+					r.Add(agent)
+					Expect(r.Len()).To(BeNumerically("==", 1))
+				})
 			})
 		})
 	})

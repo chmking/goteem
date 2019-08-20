@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/chmking/horde/protobuf/private"
 )
@@ -37,6 +38,13 @@ func (r *Registry) Len() int {
 }
 
 func (r *Registry) Add(regis Registration) error {
+	_, isActive := r.active[regis.Id]
+	_, isQuarantined := r.quarantine[regis.Id]
+
+	if isActive || isQuarantined {
+		return nil
+	}
+
 	r.agents = append(r.agents, &Metadata{Registration: regis})
 	r.active[regis.Id] = struct{}{}
 	return nil
@@ -136,6 +144,21 @@ func (r *Registry) Healthcheck() {
 			}
 		}
 	}
+}
+
+func (r *Registry) BeginHealthcheck(ctx context.Context) {
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				r.Healthcheck()
+			}
+
+			<-time.After(time.Second * 30)
+		}
+	}()
 }
 
 func min(lhs, rhs int) int {
