@@ -3,11 +3,11 @@ package manager
 import (
 	"context"
 	"log"
-	"net"
 	"sync"
 	"time"
 
 	"github.com/chmking/horde/helpers"
+	"github.com/chmking/horde/manager/registry"
 	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
 	"github.com/chmking/horde/state"
@@ -17,7 +17,7 @@ import (
 
 func New() *Manager {
 	manager := &Manager{
-		registry: NewRegistry(),
+		registry: registry.New(),
 		buffer:   tsbuffer.New(time.Second * 5),
 		sm:       &state.StateMachine{},
 	}
@@ -51,7 +51,7 @@ type WorkOrder struct {
 }
 
 type Manager struct {
-	registry *Registry
+	registry *registry.Registry
 	buffer   *tsbuffer.Buffer
 	agents   []*agentRegistry
 	sm       stateMachine
@@ -67,13 +67,11 @@ func (m *Manager) State() public.Status {
 	return m.sm.State()
 }
 
-func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.StartResponse, error) {
-	log.Println("Receieved request to start")
-
+func (m *Manager) Start(count int, rate float64) error {
 	currentState := m.sm.State()
 
 	if err := m.sm.Scaling(); err != nil {
-		return nil, err
+		return err
 	}
 
 	if currentState == public.Status_STATUS_IDLE {
@@ -82,17 +80,17 @@ func (m *Manager) Start(ctx context.Context, req *public.StartRequest) (*public.
 		}
 	}
 
-	m.current.Users = int(req.Users)
-	m.current.Rate = req.Rate
+	m.current.Users = count
+	m.current.Rate = rate
 
-	m.AssignWorkOrder(ctx, m.current)
+	m.AssignWorkOrder(context.Background(), m.current)
 
 	tallyCtx, cancel := context.WithCancel(context.Background())
 	m.tallyCancel = cancel
 
 	go m.tally(tallyCtx)
 
-	return &public.StartResponse{}, nil
+	return nil
 }
 
 func (m *Manager) AssignWorkOrder(ctx context.Context, order WorkOrder) {
@@ -129,11 +127,9 @@ func (m *Manager) AssignWorkOrder(ctx context.Context, order WorkOrder) {
 	}
 }
 
-func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.StopResponse, error) {
-	log.Println("Received request to stop")
-
+func (m *Manager) Stop() error {
 	if err := m.sm.Stopping(); err != nil {
-		return nil, err
+		return err
 	}
 
 	if m.tallyCancel != nil {
@@ -149,14 +145,12 @@ func (m *Manager) Stop(ctx context.Context, req *public.StopRequest) (*public.St
 		}
 	}
 
-	return &public.StopResponse{}, nil
+	return nil
 }
 
-func (m *Manager) Quit(ctx context.Context, req *public.QuitRequest) (*public.QuitResponse, error) {
-	log.Println("Received request to quit")
-
+func (m *Manager) Quit() error {
 	if err := m.sm.Quitting(); err != nil {
-		return nil, err
+		return err
 	}
 
 	if m.tallyCancel != nil {
@@ -176,45 +170,36 @@ func (m *Manager) Quit(ctx context.Context, req *public.QuitRequest) (*public.Qu
 		m.cancel()
 	}()
 
-	return &public.QuitResponse{}, nil
+	return nil
 }
 
-func (m *Manager) Status(ctx context.Context, req *public.StatusRequest) (*public.StatusResponse, error) {
-	resp := &public.StatusResponse{
-		Status: m.sm.State(),
-	}
-
-	m.mtx.Lock()
-	for _, agent := range m.agents {
-		resp.Agents = append(resp.Agents, &public.AgentStatus{Status: agent.Status})
-	}
-	m.mtx.Unlock()
-
-	return resp, nil
+func (m *Manager) Status() error {
+	return nil
 }
 
-func (m *Manager) Register(ctx context.Context, req *private.RegisterRequest) (*private.RegisterResponse, error) {
-	log.Printf("Receivied regitration request: %+v", req)
+type Registration struct {
+	Id   string
+	Host string
+	Port string
+}
 
+func (m *Manager) Register(req Registration) error {
 	address := req.Host + ":" + req.Port
-
 	conn, err := grpc.Dial(address,
 		grpc.WithBackoffMaxDelay(time.Second),
 		grpc.WithInsecure())
 	if err != nil {
-		log.Print(err)
-		return nil, err
+		return err
 	}
 
-	regis := Registration{
+	regis := registry.Registration{
 		Id:     req.Id,
 		Client: private.NewAgentClient(conn),
 	}
 
-	log.Printf("Adding agent to registry: %+v\n", regis)
 	m.registry.Add(regis)
 
-	return &private.RegisterResponse{}, nil
+	return nil
 }
 
 func (m *Manager) Rebalance() {
@@ -225,63 +210,6 @@ func (m *Manager) Rebalance() {
 	}
 
 	m.AssignWorkOrder(context.Background(), m.current)
-}
-
-func (m *Manager) Listen(ctx context.Context) error {
-	ctx, m.cancel = context.WithCancel(ctx)
-
-	if err := m.sm.Idle(); err != nil {
-		return err
-	}
-
-	errs := make(chan error, 1)
-
-	m.listenAndServePublic(errs)
-	m.listenAndServePrivate(errs)
-	m.healthcheck(ctx)
-
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case err := <-errs:
-			return err
-		default:
-			<-time.After(time.Second)
-		}
-	}
-}
-
-func (m *Manager) listenAndServePublic(errs chan<- error) {
-	go func() {
-		lis, err := net.Listen("tcp", ":8089")
-		if err != nil {
-			errs <- err
-			return
-		}
-
-		log.Println("Listening for public connections on :8089")
-
-		server := grpc.NewServer()
-		public.RegisterManagerServer(server, m)
-		errs <- server.Serve(lis)
-	}()
-}
-
-func (m *Manager) listenAndServePrivate(errs chan<- error) {
-	go func() {
-		lis, err := net.Listen("tcp", ":5557")
-		if err != nil {
-			errs <- err
-			return
-		}
-
-		log.Println("Listening for private connections on :5557")
-
-		server := grpc.NewServer()
-		private.RegisterManagerServer(server, m)
-		errs <- server.Serve(lis)
-	}()
 }
 
 func (m *Manager) tally(ctx context.Context) {

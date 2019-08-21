@@ -1,4 +1,4 @@
-package manager_test
+package registry_test
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/chmking/horde/manager"
+	. "github.com/chmking/horde/manager/registry"
 	"github.com/chmking/horde/protobuf/private"
 )
 
@@ -16,7 +16,7 @@ var _ = Describe("Registry", func() {
 	var r *Registry
 
 	BeforeEach(func() {
-		r = NewRegistry()
+		r = New()
 	})
 
 	Describe("Len", func() {

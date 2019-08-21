@@ -1,4 +1,4 @@
-package manager
+package registry
 
 import (
 	"context"
@@ -30,7 +30,7 @@ type Metadata struct {
 	Failed       int
 }
 
-func NewRegistry() *Registry {
+func New() *Registry {
 	return &Registry{
 		active:     map[string]struct{}{},
 		quarantine: map[string]struct{}{},
