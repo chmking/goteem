@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/chmking/horde"
-	"github.com/chmking/horde/agent"
+	"github.com/chmking/horde/agent/service"
 )
 
 func AgentMain() {
@@ -35,8 +35,8 @@ func AgentMain() {
 
 	ctx := context.Background()
 
-	agent := agent.New(config)
-	agent.Listen(ctx)
+	svc := service.New(config)
+	svc.Listen(ctx)
 }
 
 func main() {

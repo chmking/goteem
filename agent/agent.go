@@ -3,7 +3,6 @@ package agent
 import (
 	"context"
 	"log"
-	"net"
 	"sync"
 	"time"
 
@@ -58,45 +57,46 @@ type Agent struct {
 	cancel context.CancelFunc
 }
 
-func (a *Agent) Listen(ctx context.Context) error {
-	ctx, a.cancel = context.WithCancel(ctx)
-
-	if err := a.sm.Idle(); err != nil {
+func (a *Agent) Scale(count int32, rate, wait int64) error {
+	if err := a.sm.Scaling(); err != nil {
 		return err
 	}
 
-	errs := make(chan error, 1)
-
-	a.listenAndServePrivate(errs)
-	a.dialManager(ctx, errs)
-
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case err := <-errs:
-			return err
-		default:
-			<-time.After(time.Second)
-		}
+	order := session.ScaleOrder{
+		Count: count,
+		Rate:  rate,
+		Wait:  wait,
+		Work: session.Work{
+			Tasks:   a.config.Tasks,
+			WaitMin: a.config.WaitMin,
+			WaitMax: a.config.WaitMax,
+		},
 	}
+
+	log.Printf("Requesting Scale with ScaleOrder: %+v", order)
+
+	ctx := horde.WithRecorder(context.Background(), a.recorder)
+	a.session.Scale(ctx, order, a.onScaled)
+
+	return nil
 }
 
-func (a *Agent) listenAndServePrivate(errs chan<- error) {
-	go func() {
-		address := ":" + a.port
-		lis, err := net.Listen("tcp", address)
-		if err != nil {
-			errs <- err
-			return
-		}
+func (a *Agent) Stop() error {
+	if err := a.sm.Stopping(); err != nil {
+		return err
+	}
 
-		log.Printf("Listening for private connection on %s\n", address)
+	a.session.Stop(a.onStopped)
 
-		a.server = grpc.NewServer()
-		pb.RegisterAgentServer(a.server, a)
-		errs <- a.server.Serve(lis)
-	}()
+	return nil
+}
+
+func (a *Agent) onScaled() {
+	a.sm.Running()
+}
+
+func (a *Agent) onStopped() {
+	a.sm.Idle()
 }
 
 func (a *Agent) dialManager(ctx context.Context, errs chan<- error) {
@@ -126,73 +126,4 @@ func (a *Agent) dialManager(ctx context.Context, errs chan<- error) {
 			return
 		}
 	}()
-}
-
-func (a *Agent) Scale(ctx context.Context, req *pb.ScaleRequest) (*pb.ScaleResponse, error) {
-	log.Println("Received request to scale")
-
-	if err := a.sm.Scaling(); err != nil {
-		return nil, err
-	}
-
-	order := session.ScaleOrder{
-		Count: req.Users,
-		Rate:  req.Rate,
-		Wait:  req.Wait,
-		Work: session.Work{
-			Tasks:   a.config.Tasks,
-			WaitMin: a.config.WaitMin,
-			WaitMax: a.config.WaitMax,
-		},
-	}
-
-	log.Printf("Requesting Scale with ScaleOrder: %+v", order)
-
-	rctx := horde.WithRecorder(context.Background(), a.recorder)
-	a.session.Scale(rctx, order, a.onScaled)
-
-	return &pb.ScaleResponse{}, nil
-}
-
-func (a *Agent) Stop(ctx context.Context, req *pb.StopRequest) (*pb.StopResponse, error) {
-	log.Println("Received request to stop work")
-
-	if err := a.sm.Stopping(); err != nil {
-		return nil, err
-	}
-
-	a.session.Stop(a.onStopped)
-
-	return &pb.StopResponse{}, nil
-}
-
-func (a *Agent) Quit(ctx context.Context, req *pb.QuitRequest) (*pb.QuitResponse, error) {
-	log.Println("Received private.QuitRequest")
-
-	if err := a.sm.Stopping(); err != nil {
-		return nil, err
-	}
-
-	defer a.cancel()
-
-	return &pb.QuitResponse{}, nil
-}
-
-func (a *Agent) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
-	results := a.recorder.Results()
-
-	resp := &pb.HeartbeatResponse{
-		Status:  a.sm.State(),
-		Results: results,
-	}
-
-	return resp, nil
-}
-
-func (a *Agent) onScaled() {
-	a.sm.Running()
-}
-
-func (a *Agent) onStopped() {
-	a.sm.Idle()
 }

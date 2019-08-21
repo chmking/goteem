@@ -14,6 +14,7 @@ import (
 
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/agent"
+	"github.com/chmking/horde/agent/service"
 )
 
 func init() {
@@ -72,10 +73,10 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
-	agent := agent.New(config)
+	svc := service.New(config)
 
 	go func() {
-		if err := agent.Listen(ctx); err != nil {
+		if err := svc.Listen(ctx); err != nil {
 			log.Print(err)
 		}
 		c <- syscall.SIGQUIT
