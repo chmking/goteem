@@ -163,7 +163,7 @@ func (r *Registry) Healthcheck() {
 	adjusted := false
 	for _, metadata := range r.agents {
 		client := metadata.Registration.Client
-		_, err := client.Heartbeat(context.Background(), &private.HeartbeatRequest{})
+		_, err := client.Healthcheck(context.Background(), &private.HealthcheckRequest{})
 		if err != nil {
 			metadata.Failed = min(metadata.Failed+1, 3)
 			if metadata.Failed == 3 {

@@ -1,44 +1,106 @@
-package manager
+package manager_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	. "github.com/chmking/horde/manager"
+	"github.com/chmking/horde/manager/registry"
+	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
+	gomock "github.com/golang/mock/gomock"
 )
-
-type MockStateMachine struct {
-	Current public.Status
-
-	stateMachine
-}
-
-func (m *MockStateMachine) State() public.Status {
-	return m.Current
-}
 
 var _ = Describe("Manager", func() {
 	var (
-		m   *Manager
-		msm *MockStateMachine
+		manager          *Manager
+		mockCtrl         *gomock.Controller
+		mockClient       *MockAgentClient
+		mockRegistry     *MockRegistry
+		mockStateMachine *MockStateMachine
 	)
 
 	BeforeEach(func() {
-		msm = &MockStateMachine{}
+		mockCtrl = gomock.NewController(GinkgoT())
+		mockClient = NewMockAgentClient(mockCtrl)
+		mockRegistry = NewMockRegistry(mockCtrl)
+		mockStateMachine = NewMockStateMachine(mockCtrl)
 
-		m = &Manager{
-			sm: msm,
+		manager = &Manager{
+			Registry:     mockRegistry,
+			StateMachine: mockStateMachine,
 		}
 	})
 
-	Describe("State", func() {
-		BeforeEach(func() {
-			msm.Current = public.Status_STATUS_RUNNING
+	Describe("Start", func() {
+		Context("when there are no registered agents", func() {
+			BeforeEach(func() {
+				mockRegistry.EXPECT().GetActive().Return(nil).AnyTimes()
+			})
+
+			It("returns ErrNoActiveAgents", func() {
+				err := manager.Start(1, 1)
+				Expect(err).To(Equal(ErrNoActiveAgents))
+			})
 		})
 
-		It("returns the manager state", func() {
-			value := m.State()
-			Expect(value).To(Equal(public.Status_STATUS_RUNNING))
+		Context("when there is at least one registered agent", func() {
+			BeforeEach(func() {
+				mockClient.EXPECT().Scale(gomock.Any(), gomock.Any()).Return(&private.ScaleResponse{}, nil).AnyTimes()
+				mockRegistry.EXPECT().GetActive().Return([]registry.Registration{
+					registry.Registration{Client: mockClient},
+				}).AnyTimes()
+			})
+
+			Context("and the manager is in an invalid state", func() {
+				BeforeEach(func() {
+					mockStateMachine.EXPECT().State().Return(public.Status_STATUS_QUITTING).AnyTimes()
+					mockStateMachine.EXPECT().Scaling().Return(errors.New("foo")).AnyTimes()
+				})
+
+				It("returns an error", func() {
+					err := manager.Start(1, 1)
+					Expect(err).To(Equal(errors.New("foo")))
+				})
+			})
+
+			Context("and the manager is IDLE", func() {
+				BeforeEach(func() {
+					mockStateMachine.EXPECT().State().Return(public.Status_STATUS_IDLE).AnyTimes()
+					mockStateMachine.EXPECT().Scaling().Return(nil).AnyTimes()
+				})
+
+				It("does not return an error", func() {
+					err := manager.Start(1, 1)
+					Expect(err).To(BeNil())
+				})
+			})
+
+			Context("and the manager is SCALING", func() {
+				BeforeEach(func() {
+					mockStateMachine.EXPECT().State().Return(public.Status_STATUS_SCALING).AnyTimes()
+					mockStateMachine.EXPECT().Scaling().Return(nil).AnyTimes()
+				})
+
+				It("does not return an error", func() {
+					err := manager.Start(1, 1)
+					Expect(err).To(BeNil())
+				})
+			})
+
+			Context("and the manager is RUNNING", func() {
+				BeforeEach(func() {
+					mockStateMachine.EXPECT().State().Return(public.Status_STATUS_RUNNING).AnyTimes()
+					mockStateMachine.EXPECT().Scaling().Return(nil).AnyTimes()
+				})
+
+				It("does not return an error", func() {
+					err := manager.Start(1, 1)
+					Expect(err).To(BeNil())
+				})
+			})
 		})
 	})
 })

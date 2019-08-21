@@ -323,8 +323,8 @@ var _ = Describe("Registry", func() {
 
 		Context("when an active agent Healthcheck returns errors", func() {
 			BeforeEach(func() {
-				mockAgentClient.EXPECT().Heartbeat(gomock.Any(), gomock.Any()).
-					Return(&private.HeartbeatResponse{}, errors.New("foo")).AnyTimes()
+				mockAgentClient.EXPECT().Healthcheck(gomock.Any(), gomock.Any()).
+					Return(&private.HealthcheckResponse{}, errors.New("foo")).AnyTimes()
 				agent.Client = mockAgentClient
 			})
 
@@ -373,8 +373,8 @@ var _ = Describe("Registry", func() {
 
 		Context("when an quarantined agent Healthcheck passes", func() {
 			BeforeEach(func() {
-				mockAgentClient.EXPECT().Heartbeat(gomock.Any(), gomock.Any()).
-					Return(&private.HeartbeatResponse{}, nil).AnyTimes()
+				mockAgentClient.EXPECT().Healthcheck(gomock.Any(), gomock.Any()).
+					Return(&private.HealthcheckResponse{}, nil).AnyTimes()
 				agent.Client = mockAgentClient
 			})
 

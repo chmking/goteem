@@ -10,7 +10,7 @@ service Agent {
   rpc Stop(StopRequest) returns (StopResponse) {}
   rpc Quit(QuitRequest) returns (QuitResponse) {}
 
-  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse) {} 
+  rpc Healthcheck(HealthcheckRequest) returns (HealthcheckResponse) {} 
 }
 
 service Manager {
@@ -33,12 +33,9 @@ message QuitRequest{}
 
 message QuitResponse{}
 
-message HeartbeatRequest{}
+message HealthcheckRequest{}
 
-message HeartbeatResponse{
-  public.Status   Status  = 1;
-  repeated Result Results = 2;
-}
+message HealthcheckResponse{}
 
 message RegisterRequest{
   string Id       = 1;

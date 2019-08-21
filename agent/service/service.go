@@ -31,6 +31,13 @@ type Service struct {
 	cancel context.CancelFunc
 }
 
+func (s *Service) Healthcheck(
+	ctx context.Context,
+	req *pb.HealthcheckRequest) (*pb.HealthcheckResponse, error) {
+
+	return &pb.HealthcheckResponse{}, nil
+}
+
 func (s *Service) Scale(
 	ctx context.Context,
 	req *pb.ScaleRequest) (*pb.ScaleResponse, error) {
@@ -53,13 +60,6 @@ func (s *Service) Quit(
 
 	log.Println("Received request to quit")
 	return &pb.QuitResponse{}, nil
-}
-
-func (s *Service) Heartbeat(
-	ctx context.Context,
-	req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
-
-	return &pb.HeartbeatResponse{}, nil
 }
 
 func (s *Service) Listen(ctx context.Context) error {
