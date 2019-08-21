@@ -8,12 +8,11 @@ import (
 	"time"
 
 	"github.com/chmking/horde"
+	"github.com/chmking/horde/agent/recorder"
+	"github.com/chmking/horde/agent/session"
 	"github.com/chmking/horde/helpers"
 	pb "github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
-	"github.com/chmking/horde/recorder"
-	"github.com/chmking/horde/session"
-	sess "github.com/chmking/horde/session"
 	"github.com/chmking/horde/state"
 	grpc "google.golang.org/grpc"
 )
@@ -38,7 +37,7 @@ func New(config horde.Config) *Agent {
 
 		config:   config,
 		recorder: recorder.New(),
-		session:  &sess.Session{},
+		session:  &session.Session{},
 		sm:       &state.StateMachine{},
 	}
 }
@@ -136,11 +135,11 @@ func (a *Agent) Scale(ctx context.Context, req *pb.ScaleRequest) (*pb.ScaleRespo
 		return nil, err
 	}
 
-	order := sess.ScaleOrder{
+	order := session.ScaleOrder{
 		Count: req.Users,
 		Rate:  req.Rate,
 		Wait:  req.Wait,
-		Work: sess.Work{
+		Work: session.Work{
 			Tasks:   a.config.Tasks,
 			WaitMin: a.config.WaitMin,
 			WaitMax: a.config.WaitMax,

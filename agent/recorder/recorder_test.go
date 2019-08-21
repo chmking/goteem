@@ -6,8 +6,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	. "github.com/chmking/horde/agent/recorder"
 	"github.com/chmking/horde/protobuf/public"
-	. "github.com/chmking/horde/recorder"
 )
 
 var _ = Describe("New", func() {

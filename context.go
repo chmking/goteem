@@ -3,7 +3,7 @@ package horde
 import (
 	"context"
 
-	"github.com/chmking/horde/recorder"
+	"github.com/chmking/horde/agent/recorder"
 )
 
 type contextKey int

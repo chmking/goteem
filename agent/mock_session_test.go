@@ -1,7 +1,7 @@
 package agent_test
 
 import (
-	"github.com/chmking/horde/session"
+	"github.com/chmking/horde/agent/session"
 )
 
 type MockSession struct {
