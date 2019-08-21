@@ -8,10 +8,10 @@ import (
 
 	"github.com/chmking/horde/helpers"
 	"github.com/chmking/horde/manager/registry"
+	"github.com/chmking/horde/manager/tsbuffer"
 	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
 	"github.com/chmking/horde/state"
-	"github.com/chmking/horde/tsbuffer"
 	"google.golang.org/grpc"
 )
 
