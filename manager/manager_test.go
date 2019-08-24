@@ -1,6 +1,7 @@
 package manager_test
 
 import (
+	"context"
 	"errors"
 
 	. "github.com/onsi/ginkgo"
@@ -28,10 +29,20 @@ var _ = Describe("Manager", func() {
 		mockRegistry = NewMockRegistry(mockCtrl)
 		mockStateMachine = NewMockStateMachine(mockCtrl)
 
-		manager = &Manager{
-			Registry:     mockRegistry,
-			StateMachine: mockStateMachine,
-		}
+		manager = New()
+		manager.Registry = mockRegistry
+		manager.StateMachine = mockStateMachine
+	})
+
+	Describe("State", func() {
+		BeforeEach(func() {
+			mockStateMachine.EXPECT().State().Return(public.Status_STATUS_IDLE).AnyTimes()
+		})
+
+		It("returns the state", func() {
+			state := manager.State()
+			Expect(state).To(Equal(public.Status_STATUS_IDLE))
+		})
 	})
 
 	Describe("Start", func() {
@@ -73,7 +84,8 @@ var _ = Describe("Manager", func() {
 
 				Context("and the agent scale does not return an error", func() {
 					BeforeEach(func() {
-						mockClient.EXPECT().Scale(gomock.Any(), gomock.Any()).Return(&private.ScaleResponse{}, nil)
+						mockClient.EXPECT().Scale(gomock.Any(), gomock.Any()).Return(
+							&private.ScaleResponse{}, nil)
 					})
 
 					It("does not return an error", func() {
@@ -84,7 +96,9 @@ var _ = Describe("Manager", func() {
 
 				Context("and the agent scale returns an error", func() {
 					BeforeEach(func() {
-						mockClient.EXPECT().Scale(gomock.Any(), gomock.Any()).Return(&private.ScaleResponse{}, errors.New("foo"))
+						mockClient.EXPECT().Scale(gomock.Any(), gomock.Any()).Return(
+							&private.ScaleResponse{}, errors.New("foo"))
+						mockRegistry.EXPECT().Quarantine(gomock.Any()).Return(nil).AnyTimes()
 					})
 
 					It("does not return an error", func() {
@@ -97,10 +111,6 @@ var _ = Describe("Manager", func() {
 	})
 
 	Describe("Stop", func() {
-		BeforeEach(func() {
-			mockRegistry.EXPECT().GetAll().Return(nil).AnyTimes()
-		})
-
 		Context("when the manager is in an invalid state", func() {
 			BeforeEach(func() {
 				mockStateMachine.EXPECT().Stopping().Return(errors.New("foo")).AnyTimes()
@@ -135,24 +145,109 @@ var _ = Describe("Manager", func() {
 					}).AnyTimes()
 				})
 
-				It("calls Stop on the agents", func() {
-					mockClient.EXPECT().Stop(gomock.Any(), gomock.Any()).Return(&private.StopResponse{}, nil)
-				})
+				Context("and the agent does not report an error", func() {
+					var called bool
 
-				It("does not return an error", func() {
-					err := manager.Stop()
-					Expect(err).To(BeNil())
-				})
-
-				Context("and the agent reports an error", func() {
 					BeforeEach(func() {
-						mockClient.EXPECT().Stop(gomock.Any(), gomock.Any()).Return(&private.StopResponse{}, errors.New("foo"))
+						called = false
+
+						mockClient.EXPECT().Stop(gomock.Any(), gomock.Any()).DoAndReturn(
+							func(context.Context, *private.StopRequest) (*private.StopResponse, error) {
+								called = true
+								return &private.StopResponse{}, nil
+							})
+					})
+
+					It("calls Stop on the agents", func() {
+						manager.Stop()
+						Expect(called).To(BeTrue())
 					})
 
 					It("does not return an error", func() {
 						err := manager.Stop()
 						Expect(err).To(BeNil())
 					})
+				})
+
+				Context("and the agent reports an error", func() {
+					BeforeEach(func() {
+						mockClient.EXPECT().Stop(gomock.Any(), gomock.Any()).Return(
+							&private.StopResponse{}, errors.New("foo"))
+						mockRegistry.EXPECT().Quarantine(gomock.Any()).Return(nil).AnyTimes()
+					})
+
+					It("does not return an error", func() {
+						err := manager.Stop()
+						Expect(err).To(BeNil())
+					})
+				})
+			})
+		})
+	})
+
+	Describe("Register", func() {
+		var called bool
+
+		BeforeEach(func() {
+			called = false
+			mockRegistry.EXPECT().Add(gomock.Any()).DoAndReturn(
+				func(registry.Registration) error {
+					called = true
+					return nil
+				}).AnyTimes()
+		})
+
+		It("adds the agent to the registry", func() {
+			manager.Register("foo", "bar")
+			Expect(called).To(BeTrue())
+		})
+
+		It("does not return an error", func() {
+			err := manager.Register("foo", "bar")
+			Expect(err).To(BeNil())
+		})
+	})
+
+	Describe("OnRebalance", func() {
+		Context("when the state is not SCALING or RUNNING", func() {
+			BeforeEach(func() {
+				mockStateMachine.EXPECT().State().Return(public.Status_STATUS_IDLE).AnyTimes()
+			})
+
+			It("", func() {
+				manager.OnRebalance()
+			})
+		})
+
+		Context("when the state is not SCALING or RUNNING", func() {
+			BeforeEach(func() {
+				mockStateMachine.EXPECT().State().Return(public.Status_STATUS_RUNNING).AnyTimes()
+				mockStateMachine.EXPECT().Scaling().Return(nil).AnyTimes()
+				mockRegistry.EXPECT().GetActive().Return([]registry.Registration{
+					registry.Registration{Client: mockClient},
+				}).AnyTimes()
+			})
+
+			Context("and the agent scale does not return an error", func() {
+				BeforeEach(func() {
+					mockClient.EXPECT().Scale(gomock.Any(), gomock.Any()).Return(
+						&private.ScaleResponse{}, nil)
+				})
+
+				It("", func() {
+					manager.OnRebalance()
+				})
+			})
+
+			Context("and the agent scale returns an error", func() {
+				BeforeEach(func() {
+					mockClient.EXPECT().Scale(gomock.Any(), gomock.Any()).Return(
+						&private.ScaleResponse{}, errors.New("foo"))
+					mockRegistry.EXPECT().Quarantine(gomock.Any()).Return(nil).AnyTimes()
+				})
+
+				It("", func() {
+					manager.OnRebalance()
 				})
 			})
 		})

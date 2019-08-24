@@ -81,6 +81,18 @@ func (mr *MockRegistryMockRecorder) GetAll() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRegistry)(nil).GetAll))
 }
 
+// Quarantine mocks base method
+func (m *MockRegistry) Quarantine(arg0 string) error {
+	ret := m.ctrl.Call(m, "Quarantine", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Quarantine indicates an expected call of Quarantine
+func (mr *MockRegistryMockRecorder) Quarantine(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Quarantine", reflect.TypeOf((*MockRegistry)(nil).Quarantine), arg0)
+}
+
 // RegisterCallback mocks base method
 func (m *MockRegistry) RegisterCallback(arg0 func()) {
 	m.ctrl.Call(m, "RegisterCallback", arg0)

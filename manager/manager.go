@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/chmking/horde/eventloop"
 	"github.com/chmking/horde/helpers"
 	"github.com/chmking/horde/manager/registry"
 	"github.com/chmking/horde/manager/tsbuffer"
@@ -17,21 +18,9 @@ import (
 
 var ErrNoActiveAgents = errors.New("no active agents")
 
-func New() *Manager {
-	manager := &Manager{
-		Registry:     registry.New(),
-		buffer:       tsbuffer.New(time.Second * 5),
-		StateMachine: &state.StateMachine{},
-	}
-
-	manager.Registry.RegisterCallback(manager.Rebalance)
-	manager.Registry.BeginHealthcheck(context.Background())
-
-	return manager
-}
-
 type Registry interface {
 	Add(registry.Registration) error
+	Quarantine(string) error
 
 	GetAll() []registry.Registration
 	GetActive() []registry.Registration
@@ -49,13 +38,7 @@ type StateMachine interface {
 	Stopping() error
 }
 
-type agentRegistry struct {
-	Host string
-	Port string
-
-	Client private.AgentClient
-	Status public.Status
-}
+var _ = StateMachine(&state.StateMachine{})
 
 type WorkOrder struct {
 	Id    string
@@ -63,61 +46,129 @@ type WorkOrder struct {
 	Rate  float64
 }
 
+func New() *Manager {
+	manager := &Manager{
+		Registry:     registry.New(),
+		buffer:       tsbuffer.New(time.Second * 5),
+		StateMachine: &state.StateMachine{},
+
+		events: eventloop.New(),
+	}
+
+	manager.Registry.RegisterCallback(manager.OnRebalance)
+	manager.Registry.BeginHealthcheck(context.Background())
+
+	return manager
+}
+
 type Manager struct {
 	Registry     Registry
-	buffer       *tsbuffer.Buffer
 	StateMachine StateMachine
 
+	buffer *tsbuffer.Buffer
+	events *eventloop.EventLoop
+
 	current WorkOrder
-
-	cancel context.CancelFunc
+	cancel  context.CancelFunc
 }
 
-func (m *Manager) State() public.Status {
-	return m.StateMachine.State()
+func (m *Manager) State() (state public.Status) {
+	m.events.Append(func() {
+		state = m.StateMachine.State()
+	})
+
+	return
 }
 
-func (m *Manager) Start(count int, rate float64) error {
-	if len(m.Registry.GetActive()) == 0 {
-		return ErrNoActiveAgents
-	}
-
-	currentState := m.StateMachine.State()
-	if err := m.StateMachine.Scaling(); err != nil {
-		return err
-	}
-
-	if currentState == public.Status_STATUS_IDLE {
-		m.current = WorkOrder{
-			Id: helpers.MustUUID(),
+func (m *Manager) Start(count int, rate float64) (err error) {
+	m.events.Append(func() {
+		// Check for active agents
+		if len(m.Registry.GetActive()) == 0 {
+			err = ErrNoActiveAgents
+			return
 		}
-	}
 
-	m.current.Users = count
-	m.current.Rate = rate
+		// Change state
+		prevState := m.StateMachine.State()
+		if err = m.StateMachine.Scaling(); err != nil {
+			return
+		}
 
-	m.AssignWorkOrder(context.Background(), m.current)
+		// Create new work when idle
+		if prevState == public.Status_STATUS_IDLE {
+			m.current = WorkOrder{
+				Id: helpers.MustUUID(),
+			}
+		}
 
-	return nil
+		// Update the work
+		m.current.Users = count
+		m.current.Rate = rate
+
+		// Assign the work
+		m.assignWorkOrder(m.current)
+	})
+
+	return
 }
 
-func (m *Manager) Stop() error {
-	if err := m.StateMachine.Stopping(); err != nil {
-		return err
-	}
+func (m *Manager) Stop() (err error) {
+	m.events.Append(func() {
+		// Change state
+		if err = m.StateMachine.Stopping(); err != nil {
+			return
+		}
 
-	all := m.Registry.GetAll()
-	for _, agent := range all {
-		_, err := agent.Client.Stop(context.Background(), &private.StopRequest{})
+		// Request agents stop
+		all := m.Registry.GetAll()
+		for _, agent := range all {
+			if _, err := agent.Client.Stop(context.Background(), &private.StopRequest{}); err != nil {
+				log.Print(err)
+				m.Registry.Quarantine(agent.Id)
+			}
+		}
+	})
+
+	return
+}
+
+func (m *Manager) Register(id, address string) (err error) {
+	m.events.Append(func() {
+		var conn *grpc.ClientConn
+		conn, err = grpc.Dial(address,
+			grpc.WithBackoffMaxDelay(time.Second),
+			grpc.WithInsecure())
 		if err != nil {
-			log.Print(err)
+			return
 		}
-	}
 
-	return nil
+		regis := registry.Registration{
+			Id:     id,
+			Client: private.NewAgentClient(conn),
+		}
+
+		m.Registry.Add(regis)
+	})
+
+	return
 }
 
-func (m *Manager) AssignWorkOrder(ctx context.Context, order WorkOrder) {
+func (m *Manager) OnRebalance() {
+	m.events.Append(func() {
+		current := m.StateMachine.State()
+		if !(current == public.Status_STATUS_RUNNING || current == public.Status_STATUS_SCALING) {
+			return
+		}
+
+		m.assignWorkOrder(m.current)
+	})
+}
+
+func (m *Manager) assignWorkOrder(order WorkOrder) {
+	if order.Users == 0 || order.Rate == 0 {
+		return
+	}
+
 	active := m.Registry.GetActive()
 	activeLen := len(active)
 
@@ -144,44 +195,10 @@ func (m *Manager) AssignWorkOrder(ctx context.Context, order WorkOrder) {
 		}
 
 		agent := active[0]
-		_, err := agent.Client.Scale(ctx, req)
+		_, err := agent.Client.Scale(context.Background(), req)
 		if err != nil {
-			// TODO: Quarantine agent
+			log.Print(err)
+			m.Registry.Quarantine(agent.Id)
 		}
 	}
-}
-
-type Registration struct {
-	Id   string
-	Host string
-	Port string
-}
-
-func (m *Manager) Register(req Registration) error {
-	address := req.Host + ":" + req.Port
-	conn, err := grpc.Dial(address,
-		grpc.WithBackoffMaxDelay(time.Second),
-		grpc.WithInsecure())
-	if err != nil {
-		return err
-	}
-
-	regis := registry.Registration{
-		Id:     req.Id,
-		Client: private.NewAgentClient(conn),
-	}
-
-	m.Registry.Add(regis)
-
-	return nil
-}
-
-func (m *Manager) Rebalance() {
-	current := m.StateMachine.State()
-	if current != public.Status_STATUS_RUNNING &&
-		current != public.Status_STATUS_SCALING {
-		return
-	}
-
-	m.AssignWorkOrder(context.Background(), m.current)
 }
