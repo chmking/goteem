@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net"
-	"time"
 
 	"github.com/chmking/horde/manager"
 	"github.com/chmking/horde/protobuf/private"
@@ -16,7 +15,13 @@ var _ = public.ManagerServer(&Service{})
 var _ = private.ManagerServer(&Service{})
 
 type Manager interface {
+	Start(count int, rate float64) error
+	Stop() error
+
+	Register(id, address string) error
 }
+
+var _ = Manager(&manager.Manager{})
 
 func New() *Service {
 	return &Service{
@@ -34,6 +39,10 @@ func (s *Service) Start(
 	req *public.StartRequest) (*public.StartResponse, error) {
 
 	log.Println("Receieved request to start")
+	if err := s.manager.Start(int(req.Users), req.Rate); err != nil {
+		return nil, err
+	}
+
 	return &public.StartResponse{}, nil
 }
 
@@ -50,6 +59,10 @@ func (s *Service) Stop(
 	req *public.StopRequest) (*public.StopResponse, error) {
 
 	log.Println("Received request to stop")
+	if err := s.manager.Stop(); err != nil {
+		return nil, err
+	}
+
 	return &public.StopResponse{}, nil
 }
 
@@ -58,6 +71,11 @@ func (s *Service) Quit(
 	req *public.QuitRequest) (*public.QuitResponse, error) {
 
 	log.Println("Received request to quit")
+	if err := s.manager.Stop(); err != nil {
+		return nil, err
+	}
+	defer s.cancel()
+
 	return &public.QuitResponse{}, nil
 }
 
@@ -66,19 +84,17 @@ func (s *Service) Register(
 	req *private.RegisterRequest) (*private.RegisterResponse, error) {
 
 	log.Println("Receivied request to register")
+	s.manager.Register(req.Id, req.Host+":"+req.Port)
+
 	return &private.RegisterResponse{}, nil
 }
 
 func (s *Service) Listen(ctx context.Context) error {
 	ctx, s.cancel = context.WithCancel(ctx)
 
-	// TODO: Initialize manager
-
 	errs := make(chan error, 1)
-
 	s.listenAndServePublic(errs)
 	s.listenAndServePrivate(errs)
-	// s.healthcheck(ctx)
 
 	for {
 		select {
@@ -86,8 +102,6 @@ func (s *Service) Listen(ctx context.Context) error {
 			return nil
 		case err := <-errs:
 			return err
-		default:
-			<-time.After(time.Second)
 		}
 	}
 }

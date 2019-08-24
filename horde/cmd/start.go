@@ -19,6 +19,7 @@ func init() {
 var startCmd = &cobra.Command{
 	Use:   "start COUNT RATE",
 	Short: "Request the server to start a test",
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		count, err := strconv.ParseInt(args[0], 10, 32)
 		if err != nil {
@@ -45,7 +46,7 @@ var startCmd = &cobra.Command{
 			Rate:  rate,
 		})
 		if err != nil {
-			fmt.Print(err)
+			fmt.Println(err)
 			os.Exit(1)
 		}
 	},

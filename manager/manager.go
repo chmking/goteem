@@ -34,6 +34,7 @@ var _ = Registry(&registry.Registry{})
 type StateMachine interface {
 	State() public.Status
 
+	Idle() error
 	Scaling() error
 	Stopping() error
 }
@@ -49,14 +50,16 @@ type WorkOrder struct {
 func New() *Manager {
 	manager := &Manager{
 		Registry:     registry.New(),
-		buffer:       tsbuffer.New(time.Second * 5),
 		StateMachine: &state.StateMachine{},
 
+		buffer: tsbuffer.New(time.Second * 5),
 		events: eventloop.New(),
 	}
 
 	manager.Registry.RegisterCallback(manager.OnRebalance)
 	manager.Registry.BeginHealthcheck(context.Background())
+
+	manager.StateMachine.Idle()
 
 	return manager
 }
