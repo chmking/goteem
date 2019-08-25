@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -41,12 +42,6 @@ type StateMachine interface {
 
 var _ = StateMachine(&state.StateMachine{})
 
-type WorkOrder struct {
-	Id    string
-	Users int
-	Rate  float64
-}
-
 func New() *Manager {
 	manager := &Manager{
 		Registry:     registry.New(),
@@ -64,6 +59,13 @@ func New() *Manager {
 	return manager
 }
 
+type Orders struct {
+	Id string
+
+	Count int
+	Rate  float64
+}
+
 type Manager struct {
 	Registry     Registry
 	StateMachine StateMachine
@@ -71,8 +73,8 @@ type Manager struct {
 	buffer *tsbuffer.Buffer
 	events *eventloop.EventLoop
 
-	current WorkOrder
-	cancel  context.CancelFunc
+	orders Orders
+	cancel context.CancelFunc
 }
 
 func (m *Manager) State() (state public.Status) {
@@ -99,17 +101,15 @@ func (m *Manager) Start(count int, rate float64) (err error) {
 
 		// Create new work when idle
 		if prevState == public.Status_STATUS_IDLE {
-			m.current = WorkOrder{
-				Id: helpers.MustUUID(),
-			}
+			m.orders.Id = helpers.MustUUID()
 		}
 
 		// Update the work
-		m.current.Users = count
-		m.current.Rate = rate
+		m.orders.Count = count
+		m.orders.Rate = rate
 
 		// Assign the work
-		m.assignWorkOrder(m.current)
+		m.assignOrders()
 	})
 
 	return
@@ -137,6 +137,7 @@ func (m *Manager) Stop() (err error) {
 
 func (m *Manager) Register(id, address string) (err error) {
 	m.events.Append(func() {
+		fmt.Println("Processing register")
 		var conn *grpc.ClientConn
 		conn, err = grpc.Dial(address,
 			grpc.WithBackoffMaxDelay(time.Second),
@@ -163,36 +164,38 @@ func (m *Manager) OnRebalance() {
 			return
 		}
 
-		m.assignWorkOrder(m.current)
+		m.assignOrders()
 	})
 }
 
-func (m *Manager) assignWorkOrder(order WorkOrder) {
-	if order.Users == 0 || order.Rate == 0 {
+func (m *Manager) assignOrders() {
+	if m.orders.Count == 0 || m.orders.Rate == 0 {
 		return
 	}
 
 	active := m.Registry.GetActive()
 	activeLen := len(active)
 
-	if order.Users < activeLen {
-		activeLen = order.Users
+	if m.orders.Count < activeLen {
+		activeLen = m.orders.Count
 	}
 
-	allotment := order.Users / activeLen
-	remainder := order.Users % activeLen
-	increment := int64(float64(time.Second.Nanoseconds()) / order.Rate)
+	allotment := m.orders.Count / activeLen
+	remainder := m.orders.Count % activeLen
+	increment := int64(float64(time.Second.Nanoseconds()) / m.orders.Rate)
 
 	for i := 0; i < activeLen; i++ {
-		users := allotment
+		count := allotment
 		if i < remainder {
-			users = users + 1
+			count = count + 1
 		}
 		rate := int64(activeLen) * increment
 		wait := int64(i) * increment
 
-		req := &private.ScaleRequest{
-			Users: int32(users),
+		req := &private.Orders{
+			Id: m.orders.Id,
+
+			Count: int32(count),
 			Rate:  rate,
 			Wait:  wait,
 		}

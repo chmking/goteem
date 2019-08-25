@@ -36,6 +36,27 @@ var _ = Describe("Buffer", func() {
 		buf = newInjected(time.Millisecond*100, MockInitMillisecond)
 	})
 
+	Describe("Len", func() {
+		Context("when there are no items", func() {
+			It("returns 0", func() {
+				value := buf.Len()
+				Expect(value).To(BeNumerically("==", 0))
+			})
+		})
+
+		Context("when there is an item", func() {
+			BeforeEach(func() {
+				result := &private.Result{Millisecond: MockInitMillisecond()}
+				buf.Add(result)
+			})
+
+			It("returns 1", func() {
+				value := buf.Len()
+				Expect(value).To(BeNumerically("==", 1))
+			})
+		})
+	})
+
 	Describe("Add", func() {
 		var result *private.Result
 

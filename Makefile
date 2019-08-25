@@ -18,3 +18,8 @@ build:
 test:
 	ginkgo -r --randomizeAllSpecs --randomizeSuites --failFast --failOnPending --cover --trace --race --progress
 	go test -covermode=count -coverprofile=coverage.out ./...
+
+.PHONY: cover 
+cover:
+	go test -covermode=count -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out

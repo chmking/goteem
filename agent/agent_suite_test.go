@@ -1,3 +1,4 @@
+//go:generate mockgen -package=agent -destination=mock_agent_test.go github.com/chmking/horde/agent Session,StateMachine
 package agent_test
 
 import (

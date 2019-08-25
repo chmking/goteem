@@ -74,7 +74,12 @@ func (s *Service) Quit(
 	if err := s.manager.Stop(); err != nil {
 		return nil, err
 	}
-	defer s.cancel()
+
+	defer func() {
+		if s.cancel != nil {
+			s.cancel()
+		}
+	}()
 
 	return &public.QuitResponse{}, nil
 }
@@ -84,7 +89,9 @@ func (s *Service) Register(
 	req *private.RegisterRequest) (*private.RegisterResponse, error) {
 
 	log.Println("Receivied request to register")
-	s.manager.Register(req.Id, req.Host+":"+req.Port)
+	if err := s.manager.Register(req.Id, req.Host+":"+req.Port); err != nil {
+		return nil, err
+	}
 
 	return &private.RegisterResponse{}, nil
 }

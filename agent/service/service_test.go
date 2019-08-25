@@ -44,12 +44,12 @@ var _ = Describe("Service", func() {
 
 	Describe("Scale", func() {
 		var (
-			req *private.ScaleRequest
+			req *private.Orders
 			ctx context.Context
 		)
 
 		BeforeEach(func() {
-			req = &private.ScaleRequest{}
+			req = &private.Orders{}
 			ctx = context.Background()
 		})
 

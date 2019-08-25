@@ -9,26 +9,21 @@ import (
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/agent/recorder"
 	"github.com/chmking/horde/agent/session"
+	"github.com/chmking/horde/eventloop"
 	"github.com/chmking/horde/helpers"
 	pb "github.com/chmking/horde/protobuf/private"
-	"github.com/chmking/horde/protobuf/public"
 	"github.com/chmking/horde/state"
 	grpc "google.golang.org/grpc"
 )
-
-type stateMachine interface {
-	Idle() error
-	Running() error
-	Scaling() error
-	Stopping() error
-	State() public.Status
-}
 
 func New(config horde.Config) *Agent {
 	uuid := helpers.MustUUID()
 	hostname := helpers.MustHostname()
 
 	return &Agent{
+		StateMachine: &state.StateMachine{},
+		Session:      &session.Session{},
+
 		id:       hostname + "_" + uuid,
 		hostname: hostname,
 		host:     agentHost,
@@ -36,12 +31,30 @@ func New(config horde.Config) *Agent {
 
 		config:   config,
 		recorder: recorder.New(),
-		session:  &session.Session{},
-		sm:       &state.StateMachine{},
+		events:   eventloop.New(),
 	}
 }
 
+type StateMachine interface {
+	Idle() error
+	Running() error
+	Scaling() error
+	Stopping() error
+}
+
+var _ = StateMachine(&state.StateMachine{})
+
+type Session interface {
+	Scale(context.Context, session.ScaleOrder, session.Callback)
+	Stop(session.Callback)
+}
+
+var _ = Session(&session.Session{})
+
 type Agent struct {
+	StateMachine StateMachine
+	Session      Session
+
 	id       string
 	hostname string
 	host     string
@@ -49,54 +62,61 @@ type Agent struct {
 
 	config   horde.Config
 	recorder *recorder.Recorder
-	session  *session.Session
-	sm       stateMachine
+	events   *eventloop.EventLoop
 	server   *grpc.Server
 	mtx      sync.Mutex
 
 	cancel context.CancelFunc
 }
 
-func (a *Agent) Scale(count int32, rate, wait int64) error {
-	if err := a.sm.Scaling(); err != nil {
-		return err
-	}
+func (a *Agent) Scale(count int32, rate, wait int64) (err error) {
+	a.events.Append(func() {
+		if err = a.StateMachine.Scaling(); err != nil {
+			return
+		}
 
-	order := session.ScaleOrder{
-		Count: count,
-		Rate:  rate,
-		Wait:  wait,
-		Work: session.Work{
-			Tasks:   a.config.Tasks,
-			WaitMin: a.config.WaitMin,
-			WaitMax: a.config.WaitMax,
-		},
-	}
+		order := session.ScaleOrder{
+			Count: count,
+			Rate:  rate,
+			Wait:  wait,
+			Work: session.Work{
+				Tasks:   a.config.Tasks,
+				WaitMin: a.config.WaitMin,
+				WaitMax: a.config.WaitMax,
+			},
+		}
 
-	log.Printf("Requesting Scale with ScaleOrder: %+v", order)
+		log.Printf("Requesting Scale with ScaleOrder: %+v", order)
 
-	ctx := horde.WithRecorder(context.Background(), a.recorder)
-	a.session.Scale(ctx, order, a.onScaled)
+		ctx := horde.WithRecorder(context.Background(), a.recorder)
+		a.Session.Scale(ctx, order, a.onScaled)
+	})
 
-	return nil
+	return
 }
 
-func (a *Agent) Stop() error {
-	if err := a.sm.Stopping(); err != nil {
-		return err
-	}
+func (a *Agent) Stop() (err error) {
+	a.events.Append(func() {
+		if err = a.StateMachine.Stopping(); err != nil {
+			return
+		}
 
-	a.session.Stop(a.onStopped)
+		a.Session.Stop(a.onStopped)
+	})
 
-	return nil
+	return
 }
 
 func (a *Agent) onScaled() {
-	a.sm.Running()
+	a.events.Append(func() {
+		a.StateMachine.Running()
+	})
 }
 
 func (a *Agent) onStopped() {
-	a.sm.Idle()
+	a.events.Append(func() {
+		a.StateMachine.Idle()
+	})
 }
 
 func (a *Agent) dialManager(ctx context.Context, errs chan<- error) {

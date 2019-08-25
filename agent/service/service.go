@@ -40,7 +40,7 @@ func (s *Service) Healthcheck(
 
 func (s *Service) Scale(
 	ctx context.Context,
-	req *pb.ScaleRequest) (*pb.ScaleResponse, error) {
+	req *pb.Orders) (*pb.ScaleResponse, error) {
 
 	log.Println("Received request to scale")
 	return &pb.ScaleResponse{}, nil

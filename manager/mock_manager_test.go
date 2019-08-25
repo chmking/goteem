@@ -126,6 +126,18 @@ func (m *MockStateMachine) EXPECT() *MockStateMachineMockRecorder {
 	return m.recorder
 }
 
+// Idle mocks base method
+func (m *MockStateMachine) Idle() error {
+	ret := m.ctrl.Call(m, "Idle")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Idle indicates an expected call of Idle
+func (mr *MockStateMachineMockRecorder) Idle() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Idle", reflect.TypeOf((*MockStateMachine)(nil).Idle))
+}
+
 // Scaling mocks base method
 func (m *MockStateMachine) Scaling() error {
 	ret := m.ctrl.Call(m, "Scaling")
