@@ -13,6 +13,7 @@ import (
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/agent"
 	"github.com/chmking/horde/agent/service"
+	"github.com/chmking/horde/logger"
 	"github.com/chmking/horde/logger/log"
 )
 
@@ -43,6 +44,8 @@ func main() {
 	// 		recorder.Success("GET", "http://google.com", elapsed)
 	// 	},
 	// }
+
+	log.Logger = logger.NewZeroLogger(logger.NewZeroConsoleWriter(os.Stderr))
 
 	go func() {
 		err := http.ListenAndServe(":6060", nil)

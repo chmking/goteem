@@ -93,7 +93,7 @@ func (s *Service) listenAndServePrivate(errs chan<- error) {
 			return
 		}
 
-		log.Info().Msgf("Listening for private connection on %s\n", address)
+		log.Info().Msgf("Listening for private connection on %s", address)
 
 		server := grpc.NewServer()
 		pb.RegisterAgentServer(server, s)

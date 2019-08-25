@@ -8,11 +8,14 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/chmking/horde/logger"
 	"github.com/chmking/horde/logger/log"
 	manager "github.com/chmking/horde/manager/service"
 )
 
 func main() {
+	log.Logger = logger.NewZeroLogger(logger.NewZeroConsoleWriter(os.Stderr))
+
 	go func() {
 		err := http.ListenAndServe(":6061", nil)
 		log.Fatal().Err(err).Msg("pprof quit unexpectedly")

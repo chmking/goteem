@@ -7,7 +7,7 @@ import (
 )
 
 // Logger is the global logger.
-var Logger = logger.NewStdLogger(os.Stderr)
+var Logger = logger.Logger(logger.NewStdLogger(os.Stderr))
 
 // Info starts a new message with info level.
 //
