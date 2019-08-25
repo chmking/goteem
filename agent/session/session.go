@@ -2,12 +2,12 @@ package session
 
 import (
 	"context"
-	"log"
 	"math/rand"
 	"sync"
 	"time"
 
 	"github.com/chmking/horde"
+	"github.com/chmking/horde/logger/log"
 )
 
 type Callback func()
@@ -49,7 +49,7 @@ func (s *Session) Scale(ctx context.Context, order ScaleOrder, cb Callback) {
 
 	order.callback = cb
 
-	log.Printf("Scaling with ScaleOrder: %+v", order)
+	log.Info().Msgf("Scaling with ScaleOrder: %+v", order)
 
 	go s.doScale(ctx, order)
 }
@@ -112,7 +112,7 @@ func (s *Session) scaleUp(ctx context.Context, order ScaleOrder) {
 			s.mtx.Unlock()
 
 			// Start worker
-			log.Println("Spawning worker")
+			log.Info().Msg("Spawning worker")
 			go s.doWork(workerCtx, order.Work)
 
 			// Wait for rate limit

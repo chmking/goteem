@@ -3,12 +3,11 @@ package manager
 import (
 	"context"
 	"errors"
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/chmking/horde/eventloop"
 	"github.com/chmking/horde/helpers"
+	"github.com/chmking/horde/logger/log"
 	"github.com/chmking/horde/manager/registry"
 	"github.com/chmking/horde/manager/tsbuffer"
 	"github.com/chmking/horde/protobuf/private"
@@ -126,7 +125,7 @@ func (m *Manager) Stop() (err error) {
 		all := m.Registry.GetAll()
 		for _, agent := range all {
 			if _, err := agent.Client.Stop(context.Background(), &private.StopRequest{}); err != nil {
-				log.Print(err)
+				log.Error().Err(err).Msg("agent errored on stop request")
 				m.Registry.Quarantine(agent.Id)
 			}
 		}
@@ -137,7 +136,7 @@ func (m *Manager) Stop() (err error) {
 
 func (m *Manager) Register(id, address string) (err error) {
 	m.events.Append(func() {
-		fmt.Println("Processing register")
+		log.Info().Msg("Processing register")
 		var conn *grpc.ClientConn
 		conn, err = grpc.Dial(address,
 			grpc.WithBackoffMaxDelay(time.Second),
@@ -203,7 +202,7 @@ func (m *Manager) assignOrders() {
 		agent := active[0]
 		_, err := agent.Client.Scale(context.Background(), req)
 		if err != nil {
-			log.Print(err)
+			log.Error().Err(err).Msg("agent errored on scale request")
 			m.Registry.Quarantine(agent.Id)
 		}
 	}

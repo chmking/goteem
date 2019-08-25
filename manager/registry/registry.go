@@ -3,10 +3,10 @@ package registry
 import (
 	"context"
 	"errors"
-	"log"
 	"sync"
 	"time"
 
+	"github.com/chmking/horde/logger/log"
 	"github.com/chmking/horde/protobuf/private"
 )
 
@@ -169,7 +169,7 @@ func (r *Registry) Healthcheck() {
 			if metadata.Failed == 3 {
 				_, isActive := r.active[metadata.Registration.Id]
 				if isActive {
-					log.Println("Quarantining unhealthy client")
+					log.Info().Msg("Quarantining unhealthy client")
 					delete(r.active, metadata.Registration.Id)
 					r.quarantine[metadata.Registration.Id] = struct{}{}
 					adjusted = true
@@ -180,7 +180,7 @@ func (r *Registry) Healthcheck() {
 			if metadata.Failed == 0 {
 				_, isQuarantined := r.quarantine[metadata.Registration.Id]
 				if isQuarantined {
-					log.Println("Activating healthy client")
+					log.Info().Msg("Activating healthy client")
 					delete(r.quarantine, metadata.Registration.Id)
 					r.active[metadata.Registration.Id] = struct{}{}
 					adjusted = true

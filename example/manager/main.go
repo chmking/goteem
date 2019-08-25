@@ -2,20 +2,20 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/chmking/horde/logger/log"
 	manager "github.com/chmking/horde/manager/service"
 )
 
 func main() {
 	go func() {
-		log.Fatal(http.ListenAndServe(":6061", nil))
+		err := http.ListenAndServe(":6061", nil)
+		log.Fatal().Err(err).Msg("pprof quit unexpectedly")
 	}()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -26,12 +26,12 @@ func main() {
 	go func() {
 		m := manager.New()
 		if err := m.Listen(ctx); err != nil {
-			log.Print(err)
+			log.Error().Err(err).Msg("manager quit unexpectedly")
 		}
 		c <- syscall.SIGQUIT
 	}()
 
 	s := <-c
-	fmt.Println("Got signal:", s)
+	log.Info().Msg("Got signal: " + s.String())
 	cancel()
 }

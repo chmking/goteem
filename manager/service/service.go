@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"log"
 	"net"
 
+	"github.com/chmking/horde/logger/log"
 	"github.com/chmking/horde/manager"
 	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
@@ -38,7 +38,7 @@ func (s *Service) Start(
 	ctx context.Context,
 	req *public.StartRequest) (*public.StartResponse, error) {
 
-	log.Println("Receieved request to start")
+	log.Info().Msg("Receieved request to start")
 	if err := s.manager.Start(int(req.Users), req.Rate); err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (s *Service) Status(
 	ctx context.Context,
 	req *public.StatusRequest) (*public.StatusResponse, error) {
 
-	log.Println("Receivied request for status")
+	log.Info().Msg("Receivied request for status")
 	return &public.StatusResponse{}, nil
 }
 
@@ -58,7 +58,7 @@ func (s *Service) Stop(
 	ctx context.Context,
 	req *public.StopRequest) (*public.StopResponse, error) {
 
-	log.Println("Received request to stop")
+	log.Info().Msg("Received request to stop")
 	if err := s.manager.Stop(); err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (s *Service) Quit(
 	ctx context.Context,
 	req *public.QuitRequest) (*public.QuitResponse, error) {
 
-	log.Println("Received request to quit")
+	log.Info().Msg("Received request to quit")
 	if err := s.manager.Stop(); err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *Service) Register(
 	ctx context.Context,
 	req *private.RegisterRequest) (*private.RegisterResponse, error) {
 
-	log.Println("Receivied request to register")
+	log.Info().Msg("Receivied request to register")
 	if err := s.manager.Register(req.Id, req.Host+":"+req.Port); err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (s *Service) listenAndServePublic(errs chan<- error) {
 			return
 		}
 
-		log.Println("Listening for public connections on :8089")
+		log.Info().Msg("Listening for public connections on :8089")
 
 		server := grpc.NewServer()
 		public.RegisterManagerServer(server, s)
@@ -137,7 +137,7 @@ func (m *Service) listenAndServePrivate(errs chan<- error) {
 			return
 		}
 
-		log.Println("Listening for private connections on :5557")
+		log.Info().Msg("Listening for private connections on :5557")
 
 		server := grpc.NewServer()
 		private.RegisterManagerServer(server, m)

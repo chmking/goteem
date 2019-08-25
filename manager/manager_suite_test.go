@@ -5,6 +5,8 @@ package manager_test
 import (
 	"testing"
 
+	"github.com/chmking/horde/logger"
+	"github.com/chmking/horde/logger/log"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -13,3 +15,7 @@ func TestManager(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Manager Suite")
 }
+
+var _ = BeforeSuite(func() {
+	log.Logger = logger.NewStdLogger(GinkgoWriter)
+})

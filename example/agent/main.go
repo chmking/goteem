@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
-	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -15,6 +13,7 @@ import (
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/agent"
 	"github.com/chmking/horde/agent/service"
+	"github.com/chmking/horde/logger/log"
 )
 
 func init() {
@@ -46,7 +45,8 @@ func main() {
 	// }
 
 	go func() {
-		log.Fatal(http.ListenAndServe(":6060", nil))
+		err := http.ListenAndServe(":6060", nil)
+		log.Fatal().Err(err).Msg("pprof quit unexpectedly")
 	}()
 
 	simple := &horde.Task{
@@ -55,7 +55,7 @@ func main() {
 			recorder := horde.RecorderFrom(ctx)
 
 			start := time.Now()
-			log.Println("Sample")
+			log.Info().Msg("Sample")
 			elapsed := time.Since(start).Nanoseconds() / 1e6
 
 			recorder.Success("GET", "http://google.com", elapsed)
@@ -77,12 +77,12 @@ func main() {
 
 	go func() {
 		if err := svc.Listen(ctx); err != nil {
-			log.Print(err)
+			log.Error().Err(err).Msg("agent quit unexpectedly")
 		}
 		c <- syscall.SIGQUIT
 	}()
 
 	s := <-c
-	fmt.Println("Got signal:", s)
+	log.Info().Msg("Got signal: " + s.String())
 	cancel()
 }

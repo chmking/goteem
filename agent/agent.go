@@ -2,7 +2,6 @@ package agent
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/chmking/horde/agent/session"
 	"github.com/chmking/horde/eventloop"
 	"github.com/chmking/horde/helpers"
+	"github.com/chmking/horde/logger/log"
 	pb "github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/state"
 	grpc "google.golang.org/grpc"
@@ -86,7 +86,7 @@ func (a *Agent) Scale(count int32, rate, wait int64) (err error) {
 			},
 		}
 
-		log.Printf("Requesting Scale with ScaleOrder: %+v", order)
+		log.Info().Msgf("Requesting Scale with ScaleOrder: %+v", order)
 
 		ctx := horde.WithRecorder(context.Background(), a.recorder)
 		a.Session.Scale(ctx, order, a.onScaled)

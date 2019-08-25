@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
-	"log"
 	"net"
 	"time"
 
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/agent"
+	"github.com/chmking/horde/logger/log"
 	"github.com/chmking/horde/protobuf/private"
 	pb "github.com/chmking/horde/protobuf/private"
 	"google.golang.org/grpc"
@@ -42,7 +42,7 @@ func (s *Service) Scale(
 	ctx context.Context,
 	req *pb.Orders) (*pb.ScaleResponse, error) {
 
-	log.Println("Received request to scale")
+	log.Info().Msg("Received request to scale")
 	return &pb.ScaleResponse{}, nil
 }
 
@@ -50,7 +50,7 @@ func (s *Service) Stop(
 	ctx context.Context,
 	req *pb.StopRequest) (*pb.StopResponse, error) {
 
-	log.Println("Received request to stop")
+	log.Info().Msg("Received request to stop")
 	return &pb.StopResponse{}, nil
 }
 
@@ -58,7 +58,7 @@ func (s *Service) Quit(
 	ctx context.Context,
 	req *pb.QuitRequest) (*pb.QuitResponse, error) {
 
-	log.Println("Received request to quit")
+	log.Info().Msg("Received request to quit")
 	return &pb.QuitResponse{}, nil
 }
 
@@ -93,7 +93,7 @@ func (s *Service) listenAndServePrivate(errs chan<- error) {
 			return
 		}
 
-		log.Printf("Listening for private connection on %s\n", address)
+		log.Info().Msgf("Listening for private connection on %s\n", address)
 
 		server := grpc.NewServer()
 		pb.RegisterAgentServer(server, s)
