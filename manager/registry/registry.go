@@ -63,7 +63,7 @@ func (r *Registry) Add(regis Registration) error {
 	r.active[regis.Id] = struct{}{}
 
 	if r.cb != nil {
-		r.cb()
+		go r.cb()
 	}
 
 	return nil
@@ -85,7 +85,7 @@ func (r *Registry) Quarantine(id string) error {
 		}
 
 		if r.cb != nil {
-			r.cb()
+			go r.cb()
 		}
 
 		return nil
@@ -190,7 +190,7 @@ func (r *Registry) Healthcheck() {
 	}
 
 	if adjusted && r.cb != nil {
-		r.cb()
+		go r.cb()
 	}
 }
 

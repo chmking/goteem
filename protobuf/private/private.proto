@@ -6,7 +6,7 @@ option go_package = "github.com/chmking/horde/protobuf/private";
 import "public/public.proto";
 
 service Agent {
-  rpc Scale(Orders) returns (ScaleResponse) {}
+  rpc Scale(ScaleRequest) returns (ScaleResponse) {}
   rpc Stop(StopRequest) returns (StopResponse) {}
   rpc Quit(QuitRequest) returns (QuitResponse) {}
 
@@ -25,7 +25,11 @@ message Orders {
   int64  Wait  = 4;
 }
 
-message ScaleResponse {}
+message ScaleRequest{
+  Orders Orders = 1;
+}
+
+message ScaleResponse{}
 
 message StopRequest{}
 

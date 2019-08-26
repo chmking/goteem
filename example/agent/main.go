@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/chmking/horde"
-	"github.com/chmking/horde/agent"
 	"github.com/chmking/horde/agent/service"
 	"github.com/chmking/horde/logger"
 	"github.com/chmking/horde/logger/log"
@@ -19,7 +18,7 @@ import (
 
 func init() {
 	// Register the agent flags
-	agent.Flags()
+	service.Flags()
 
 	// Add additional flags
 

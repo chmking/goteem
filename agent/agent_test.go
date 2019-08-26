@@ -38,13 +38,15 @@ var _ = Describe("Agent", func() {
 	})
 
 	Describe("Scale", func() {
+		var orders Orders
+
 		Context("when the agent is in an invalid state", func() {
 			BeforeEach(func() {
 				mockStateMachine.EXPECT().Scaling().Return(errors.New("foo")).AnyTimes()
 			})
 
 			It("returns an error", func() {
-				err := agent.Scale(1, 1, 1)
+				err := agent.Scale(orders)
 				Expect(err).To(Equal(errors.New("foo")))
 			})
 		})
@@ -56,7 +58,7 @@ var _ = Describe("Agent", func() {
 			})
 
 			It("does not return an error", func() {
-				err := agent.Scale(1, 1, 1)
+				err := agent.Scale(orders)
 				Expect(err).To(BeNil())
 			})
 		})

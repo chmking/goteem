@@ -87,6 +87,7 @@ func (m *Manager) State() (state public.Status) {
 func (m *Manager) Start(count int, rate float64) (err error) {
 	m.events.Append(func() {
 		// Check for active agents
+		log.Info().Msg("Getting active agents")
 		if len(m.Registry.GetActive()) == 0 {
 			err = ErrNoActiveAgents
 			return
@@ -136,7 +137,6 @@ func (m *Manager) Stop() (err error) {
 
 func (m *Manager) Register(id, address string) (err error) {
 	m.events.Append(func() {
-		log.Info().Msg("Processing register")
 		var conn *grpc.ClientConn
 		conn, err = grpc.Dial(address,
 			grpc.WithBackoffMaxDelay(time.Second),
@@ -150,6 +150,7 @@ func (m *Manager) Register(id, address string) (err error) {
 			Client: private.NewAgentClient(conn),
 		}
 
+		log.Info().Msgf("Adding registry for: %+v", regis)
 		m.Registry.Add(regis)
 	})
 
@@ -191,12 +192,14 @@ func (m *Manager) assignOrders() {
 		rate := int64(activeLen) * increment
 		wait := int64(i) * increment
 
-		req := &private.Orders{
-			Id: m.orders.Id,
+		req := &private.ScaleRequest{
+			Orders: &private.Orders{
+				Id: m.orders.Id,
 
-			Count: int32(count),
-			Rate:  rate,
-			Wait:  wait,
+				Count: int32(count),
+				Rate:  rate,
+				Wait:  wait,
+			},
 		}
 
 		agent := active[0]

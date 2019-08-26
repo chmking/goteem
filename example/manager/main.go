@@ -10,7 +10,7 @@ import (
 
 	"github.com/chmking/horde/logger"
 	"github.com/chmking/horde/logger/log"
-	manager "github.com/chmking/horde/manager/service"
+	"github.com/chmking/horde/manager/service"
 )
 
 func main() {
@@ -27,14 +27,14 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 
 	go func() {
-		m := manager.New()
-		if err := m.Listen(ctx); err != nil {
+		s := service.New()
+		if err := s.Listen(ctx); err != nil {
 			log.Error().Err(err).Msg("manager quit unexpectedly")
 		}
 		c <- syscall.SIGQUIT
 	}()
 
-	s := <-c
-	log.Info().Msg("Got signal: " + s.String())
+	sig := <-c
+	log.Info().Msg("Got signal: " + sig.String())
 	cancel()
 }

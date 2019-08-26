@@ -72,7 +72,7 @@ func (mr *MockAgentClientMockRecorder) Quit(arg0, arg1 interface{}, arg2 ...inte
 }
 
 // Scale mocks base method
-func (m *MockAgentClient) Scale(arg0 context.Context, arg1 *private.Orders, arg2 ...grpc.CallOption) (*private.ScaleResponse, error) {
+func (m *MockAgentClient) Scale(arg0 context.Context, arg1 *private.ScaleRequest, arg2 ...grpc.CallOption) (*private.ScaleResponse, error) {
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)

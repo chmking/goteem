@@ -1,3 +1,4 @@
+//go:generate mockgen -package=service -destination=mock_agent_test.go github.com/chmking/horde/agent/service Agent
 package service_test
 
 import (

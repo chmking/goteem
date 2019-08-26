@@ -3,6 +3,7 @@ package service_test
 import (
 	"context"
 
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -12,48 +13,54 @@ import (
 )
 
 var _ = Describe("Service", func() {
-	var service *Service
+	var (
+		service *Service
+		ctx     context.Context
+
+		mockCtrl  *gomock.Controller
+		mockAgent *MockAgent
+	)
 
 	BeforeEach(func() {
+		mockCtrl = gomock.NewController(GinkgoT())
+		mockAgent = NewMockAgent(mockCtrl)
+
 		service = New(horde.Config{})
+		service.Agent = mockAgent
+
+		ctx = context.Background()
 	})
 
 	Describe("Healthcheck", func() {
-		var (
-			req *private.HealthcheckRequest
-			ctx context.Context
-		)
+		var req *private.HealthcheckRequest
 
 		BeforeEach(func() {
 			req = &private.HealthcheckRequest{}
-			ctx = context.Background()
 		})
 
-		Context("when the agent does not return an error", func() {
-			It("returns a public.HealthcheckResponse", func() {
-				resp, _ := service.Healthcheck(ctx, req)
-				Expect(resp).To(BeEquivalentTo(&private.HealthcheckResponse{}))
-			})
+		It("returns a public.HealthcheckResponse", func() {
+			resp, _ := service.Healthcheck(ctx, req)
+			Expect(resp).To(BeEquivalentTo(&private.HealthcheckResponse{}))
+		})
 
-			It("does not return an error", func() {
-				_, err := service.Healthcheck(ctx, req)
-				Expect(err).To(BeNil())
-			})
+		It("does not return an error", func() {
+			_, err := service.Healthcheck(ctx, req)
+			Expect(err).To(BeNil())
 		})
 	})
 
 	Describe("Scale", func() {
-		var (
-			req *private.Orders
-			ctx context.Context
-		)
+		var req *private.ScaleRequest
 
 		BeforeEach(func() {
-			req = &private.Orders{}
-			ctx = context.Background()
+			req = &private.ScaleRequest{Orders: &private.Orders{}}
 		})
 
 		Context("when the agent does not return an error", func() {
+			BeforeEach(func() {
+				mockAgent.EXPECT().Scale(gomock.Any()).Return(nil).AnyTimes()
+			})
+
 			It("returns a public.ScaleResponse", func() {
 				resp, _ := service.Scale(ctx, req)
 				Expect(resp).To(BeEquivalentTo(&private.ScaleResponse{}))
@@ -67,17 +74,17 @@ var _ = Describe("Service", func() {
 	})
 
 	Describe("Stop", func() {
-		var (
-			req *private.StopRequest
-			ctx context.Context
-		)
+		var req *private.StopRequest
 
 		BeforeEach(func() {
 			req = &private.StopRequest{}
-			ctx = context.Background()
 		})
 
 		Context("when the agent does not return an error", func() {
+			BeforeEach(func() {
+				mockAgent.EXPECT().Stop().Return(nil).AnyTimes()
+			})
+
 			It("returns a public.StopResponse", func() {
 				resp, _ := service.Stop(ctx, req)
 				Expect(resp).To(BeEquivalentTo(&private.StopResponse{}))
@@ -91,17 +98,17 @@ var _ = Describe("Service", func() {
 	})
 
 	Describe("Quit", func() {
-		var (
-			req *private.QuitRequest
-			ctx context.Context
-		)
+		var req *private.QuitRequest
 
 		BeforeEach(func() {
 			req = &private.QuitRequest{}
-			ctx = context.Background()
 		})
 
 		Context("when the agent does not return an error", func() {
+			BeforeEach(func() {
+				mockAgent.EXPECT().Stop().Return(nil).AnyTimes()
+			})
+
 			It("returns a public.QuitResponse", func() {
 				resp, _ := service.Quit(ctx, req)
 				Expect(resp).To(BeEquivalentTo(&private.QuitResponse{}))

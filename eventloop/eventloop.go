@@ -1,6 +1,8 @@
 package eventloop
 
-import "context"
+import (
+	"context"
+)
 
 // Event represents an event in the loop
 type Event func()

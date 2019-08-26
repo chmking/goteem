@@ -1,6 +1,7 @@
 package registry_test
 
 import (
+	context "context"
 	"errors"
 	"strconv"
 
@@ -62,10 +63,15 @@ var _ = Describe("Registry", func() {
 
 			It("triggers the callback", func() {
 				triggered := false
+
+				ctx, cancel := context.WithCancel(context.Background())
 				r.RegisterCallback(func() {
 					triggered = true
+					cancel()
 				})
 				r.Add(agent)
+				<-ctx.Done()
+
 				Expect(triggered).To(BeTrue())
 			})
 
@@ -151,10 +157,15 @@ var _ = Describe("Registry", func() {
 
 				It("triggers the callback", func() {
 					triggered := false
+
+					ctx, cancel := context.WithCancel(context.Background())
 					r.RegisterCallback(func() {
 						triggered = true
+						cancel()
 					})
 					r.Quarantine(agent.Id)
+					<-ctx.Done()
+
 					Expect(triggered).To(BeTrue())
 				})
 
@@ -362,10 +373,15 @@ var _ = Describe("Registry", func() {
 
 				It("triggers the callback", func() {
 					triggered := false
+
+					ctx, cancel := context.WithCancel(context.Background())
 					r.RegisterCallback(func() {
 						triggered = true
+						cancel()
 					})
 					r.Healthcheck()
+					<-ctx.Done()
+
 					Expect(triggered).To(BeTrue())
 				})
 			})
@@ -416,10 +432,15 @@ var _ = Describe("Registry", func() {
 
 				It("triggers the callback", func() {
 					triggered := false
+
+					ctx, cancel := context.WithCancel(context.Background())
 					r.RegisterCallback(func() {
 						triggered = true
+						cancel()
 					})
 					r.Healthcheck()
+					<-ctx.Done()
+
 					Expect(triggered).To(BeTrue())
 				})
 			})

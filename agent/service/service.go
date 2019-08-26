@@ -7,6 +7,7 @@ import (
 
 	"github.com/chmking/horde"
 	"github.com/chmking/horde/agent"
+	"github.com/chmking/horde/helpers"
 	"github.com/chmking/horde/logger/log"
 	"github.com/chmking/horde/protobuf/private"
 	pb "github.com/chmking/horde/protobuf/private"
@@ -16,18 +17,31 @@ import (
 var _ = private.AgentServer(&Service{})
 
 type Agent interface {
+	Scale(order agent.Orders) error
+	Stop() error
 }
 
 func New(config horde.Config) *Service {
+	uuid := helpers.MustUUID()
+	hostname := helpers.MustHostname()
+
 	return &Service{
-		agent: agent.New(config),
+		id:       hostname + "_" + uuid,
+		hostname: hostname,
+		host:     agentHost,
+		port:     agentPort,
+
+		Agent: agent.New(config),
 	}
 }
 
 type Service struct {
-	port string
+	id       string
+	hostname string
+	host     string
+	port     string
 
-	agent  Agent
+	Agent  Agent
 	cancel context.CancelFunc
 }
 
@@ -40,9 +54,22 @@ func (s *Service) Healthcheck(
 
 func (s *Service) Scale(
 	ctx context.Context,
-	req *pb.Orders) (*pb.ScaleResponse, error) {
+	req *pb.ScaleRequest) (*pb.ScaleResponse, error) {
 
 	log.Info().Msg("Received request to scale")
+
+	orders := agent.Orders{
+		Id: req.Orders.Id,
+
+		Count: req.Orders.Count,
+		Rate:  req.Orders.Rate,
+		Wait:  req.Orders.Wait,
+	}
+
+	if err := s.Agent.Scale(orders); err != nil {
+		return &pb.ScaleResponse{}, err
+	}
+
 	return &pb.ScaleResponse{}, nil
 }
 
@@ -51,6 +78,10 @@ func (s *Service) Stop(
 	req *pb.StopRequest) (*pb.StopResponse, error) {
 
 	log.Info().Msg("Received request to stop")
+	if err := s.Agent.Stop(); err != nil {
+		return &pb.StopResponse{}, err
+	}
+
 	return &pb.StopResponse{}, nil
 }
 
@@ -59,18 +90,19 @@ func (s *Service) Quit(
 	req *pb.QuitRequest) (*pb.QuitResponse, error) {
 
 	log.Info().Msg("Received request to quit")
+	if err := s.Agent.Stop(); err != nil {
+		return &pb.QuitResponse{}, err
+	}
+
 	return &pb.QuitResponse{}, nil
 }
 
 func (s *Service) Listen(ctx context.Context) error {
 	ctx, s.cancel = context.WithCancel(ctx)
 
-	// TODO: Initialize agent
-
 	errs := make(chan error, 1)
-
 	s.listenAndServePrivate(errs)
-	// s.dialManager(ctx, errs)
+	s.dialManager(errs)
 
 	for {
 		select {
@@ -78,8 +110,6 @@ func (s *Service) Listen(ctx context.Context) error {
 			return nil
 		case err := <-errs:
 			return err
-		default:
-			<-time.After(time.Second)
 		}
 	}
 }
@@ -98,5 +128,34 @@ func (s *Service) listenAndServePrivate(errs chan<- error) {
 		server := grpc.NewServer()
 		pb.RegisterAgentServer(server, s)
 		errs <- server.Serve(lis)
+	}()
+}
+
+func (s *Service) dialManager(errs chan<- error) {
+	go func() {
+		address := managerHost + ":" + managerPort
+		conn, err := grpc.Dial(address,
+			grpc.WithBackoffMaxDelay(time.Second),
+			grpc.WithInsecure(),
+			grpc.WithBlock())
+		if err != nil {
+			errs <- err
+			return
+		}
+
+		client := pb.NewManagerClient(conn)
+
+		req := &pb.RegisterRequest{
+			Id:       s.id,
+			Hostname: s.hostname,
+			Host:     s.host,
+			Port:     s.port,
+		}
+
+		_, err = client.Register(context.Background(), req)
+		if err != nil {
+			errs <- err
+			return
+		}
 	}()
 }
