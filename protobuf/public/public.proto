@@ -41,12 +41,14 @@ message StartResponse {}
 message StatusRequest{}
 
 message StatusResponse{
-  Status               Status = 1;
-  repeated AgentStatus Agents = 2;
+  Status State  = 1;
+  Orders Orders = 2;
 }
 
-message AgentStatus{
-  Status Status = 1;
+message Orders{
+  string Id    = 1;
+  int32  Count = 2;
+  double Rate  = 3;
 }
 
 message StopRequest{}

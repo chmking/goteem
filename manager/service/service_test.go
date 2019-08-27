@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	gomock "github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/chmking/horde/manager"
 	"github.com/chmking/horde/protobuf/private"
 	"github.com/chmking/horde/protobuf/public"
 )
@@ -52,6 +54,41 @@ var _ = Describe("Service", func() {
 				Expect(err).To(BeNil())
 			})
 		})
+
+		Context("when the manager returns an error", func() {
+			BeforeEach(func() {
+				mockManager.EXPECT().Start(gomock.Any(), gomock.Any()).Return(errors.New("foo")).AnyTimes()
+			})
+
+			It("returns a zero public.StartResponse", func() {
+				resp, _ := service.Start(ctx, req)
+				Expect(resp).To(BeZero())
+			})
+
+			It("returns the error", func() {
+				_, err := service.Start(ctx, req)
+				Expect(err).To(Equal(errors.New("foo")))
+			})
+		})
+	})
+
+	Describe("Status", func() {
+		var req *public.StatusRequest
+
+		BeforeEach(func() {
+			req = &public.StatusRequest{}
+			mockManager.EXPECT().Status().Return(manager.Status{}).AnyTimes()
+		})
+
+		It("returns a public.StatusResponse", func() {
+			resp, _ := service.Status(ctx, req)
+			Expect(resp).To(BeEquivalentTo(&public.StatusResponse{}))
+		})
+
+		It("does not return an error", func() {
+			_, err := service.Status(ctx, req)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("Stop", func() {
@@ -74,6 +111,22 @@ var _ = Describe("Service", func() {
 			It("does not return an error", func() {
 				_, err := service.Stop(ctx, req)
 				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the manager returns an error", func() {
+			BeforeEach(func() {
+				mockManager.EXPECT().Stop().Return(errors.New("foo")).AnyTimes()
+			})
+
+			It("returns a zero public.StopResponse", func() {
+				resp, _ := service.Stop(ctx, req)
+				Expect(resp).To(BeZero())
+			})
+
+			It("returns the error", func() {
+				_, err := service.Stop(ctx, req)
+				Expect(err).To(Equal(errors.New("foo")))
 			})
 		})
 	})
@@ -100,6 +153,22 @@ var _ = Describe("Service", func() {
 				Expect(err).To(BeNil())
 			})
 		})
+
+		Context("when the manager returns an error", func() {
+			BeforeEach(func() {
+				mockManager.EXPECT().Stop().Return(errors.New("foo")).AnyTimes()
+			})
+
+			It("returns a zero public.QuitResponse", func() {
+				resp, _ := service.Quit(ctx, req)
+				Expect(resp).To(BeZero())
+			})
+
+			It("returns the error", func() {
+				_, err := service.Quit(ctx, req)
+				Expect(err).To(Equal(errors.New("foo")))
+			})
+		})
 	})
 
 	Describe("Register", func() {
@@ -122,6 +191,22 @@ var _ = Describe("Service", func() {
 			It("does not return an error", func() {
 				_, err := service.Register(ctx, req)
 				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("when the manager returns an error", func() {
+			BeforeEach(func() {
+				mockManager.EXPECT().Register(gomock.Any(), gomock.Any()).Return(errors.New("foo")).AnyTimes()
+			})
+
+			It("returns a zero private.RegisterResponse", func() {
+				resp, _ := service.Register(ctx, req)
+				Expect(resp).To(BeZero())
+			})
+
+			It("returns the error", func() {
+				_, err := service.Register(ctx, req)
+				Expect(err).To(Equal(errors.New("foo")))
 			})
 		})
 	})

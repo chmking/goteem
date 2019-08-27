@@ -16,6 +16,7 @@ var _ = private.ManagerServer(&Service{})
 
 type Manager interface {
 	Start(count int, rate float64) error
+	Status() manager.Status
 	Stop() error
 
 	Register(id, address string) error
@@ -51,7 +52,22 @@ func (s *Service) Status(
 	req *public.StatusRequest) (*public.StatusResponse, error) {
 
 	log.Info().Msg("Receivied request for status")
-	return &public.StatusResponse{}, nil
+
+	status := s.manager.Status()
+
+	resp := &public.StatusResponse{
+		State: status.State,
+	}
+
+	if status.Orders != nil {
+		resp.Orders = &public.Orders{
+			Id:    status.Orders.Id,
+			Count: int32(status.Orders.Count),
+			Rate:  status.Orders.Rate,
+		}
+	}
+
+	return resp, nil
 }
 
 func (s *Service) Stop(
@@ -103,13 +119,11 @@ func (s *Service) Listen(ctx context.Context) error {
 	s.listenAndServePublic(errs)
 	s.listenAndServePrivate(errs)
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case err := <-errs:
-			return err
-		}
+	select {
+	case <-ctx.Done():
+		return nil
+	case err := <-errs:
+		return err
 	}
 }
 

@@ -5,6 +5,7 @@
 package service
 
 import (
+	manager "github.com/chmking/horde/manager"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -54,6 +55,18 @@ func (m *MockManager) Start(arg0 int, arg1 float64) error {
 // Start indicates an expected call of Start
 func (mr *MockManagerMockRecorder) Start(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockManager)(nil).Start), arg0, arg1)
+}
+
+// Status mocks base method
+func (m *MockManager) Status() manager.Status {
+	ret := m.ctrl.Call(m, "Status")
+	ret0, _ := ret[0].(manager.Status)
+	return ret0
+}
+
+// Status indicates an expected call of Status
+func (mr *MockManagerMockRecorder) Status() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Status", reflect.TypeOf((*MockManager)(nil).Status))
 }
 
 // Stop mocks base method

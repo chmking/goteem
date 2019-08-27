@@ -58,6 +58,11 @@ func New() *Manager {
 	return manager
 }
 
+type Status struct {
+	State  public.Status
+	Orders *Orders
+}
+
 type Orders struct {
 	Id string
 
@@ -72,13 +77,16 @@ type Manager struct {
 	buffer *tsbuffer.Buffer
 	events *eventloop.EventLoop
 
-	orders Orders
+	orders *Orders
 	cancel context.CancelFunc
 }
 
-func (m *Manager) State() (state public.Status) {
+func (m *Manager) Status() (status Status) {
 	m.events.Append(func() {
-		state = m.StateMachine.State()
+		status = Status{
+			State:  m.StateMachine.State(),
+			Orders: m.orders,
+		}
 	})
 
 	return
@@ -101,7 +109,9 @@ func (m *Manager) Start(count int, rate float64) (err error) {
 
 		// Create new work when idle
 		if prevState == public.Status_STATUS_IDLE {
-			m.orders.Id = helpers.MustUUID()
+			m.orders = &Orders{
+				Id: helpers.MustUUID(),
+			}
 		}
 
 		// Update the work
@@ -169,7 +179,7 @@ func (m *Manager) OnRebalance() {
 }
 
 func (m *Manager) assignOrders() {
-	if m.orders.Count == 0 || m.orders.Rate == 0 {
+	if m.orders == nil {
 		return
 	}
 

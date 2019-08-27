@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"text/template"
 
 	"github.com/chmking/horde/protobuf/public"
 	"github.com/spf13/cobra"
@@ -13,6 +14,17 @@ import (
 func init() {
 	rootCmd.AddCommand(statusCmd)
 }
+
+var tmpl = `
+Manager:
+  State: {{ .State }}
+{{- if .Orders }}
+  Orders:
+    ID:    {{ .Orders.Id }}
+    Count: {{ .Orders.Count }}
+    Rate:  {{ .Orders.Rate }}
+{{ end }}
+`
 
 var statusCmd = &cobra.Command{
 	Use:   "status",
@@ -34,18 +46,15 @@ var statusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println("Manager:")
-		fmt.Printf("  Status: %s\n", resp.Status.String())
-		fmt.Printf("  Agents: %d\n", len(resp.Agents))
-
-		if len(resp.Agents) == 0 {
-			return
+		output, err := template.New("output").Parse(tmpl)
+		if err != nil {
+			fmt.Print(err)
+			os.Exit(1)
 		}
 
-		fmt.Println("")
-		fmt.Println("Agents:")
-		for _, agent := range resp.Agents {
-			fmt.Printf("    Status: %s\n", agent.Status.String())
+		if err := output.Execute(os.Stdout, resp); err != nil {
+			fmt.Print(err)
+			os.Exit(1)
 		}
 	},
 }

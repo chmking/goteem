@@ -34,14 +34,14 @@ var _ = Describe("Manager", func() {
 		manager.StateMachine = mockStateMachine
 	})
 
-	Describe("State", func() {
+	Describe("Status", func() {
 		BeforeEach(func() {
 			mockStateMachine.EXPECT().State().Return(public.Status_STATUS_IDLE).AnyTimes()
 		})
 
-		It("returns the state", func() {
-			state := manager.State()
-			Expect(state).To(Equal(public.Status_STATUS_IDLE))
+		It("returns the status", func() {
+			status := manager.Status()
+			Expect(status.State).To(Equal(public.Status_STATUS_IDLE))
 		})
 	})
 
