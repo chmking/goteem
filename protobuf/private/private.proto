@@ -41,7 +41,10 @@ message QuitResponse{}
 
 message HealthcheckRequest{}
 
-message HealthcheckResponse{}
+message HealthcheckResponse{
+  public.Status State  = 1;
+  Orders        Orders = 2;
+}
 
 message RegisterRequest{
   string Id       = 1;

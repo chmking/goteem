@@ -9,6 +9,7 @@ import (
 	"github.com/chmking/horde/agent/session"
 	"github.com/chmking/horde/eventloop"
 	"github.com/chmking/horde/logger/log"
+	"github.com/chmking/horde/protobuf/public"
 	"github.com/chmking/horde/state"
 	grpc "google.golang.org/grpc"
 )
@@ -34,6 +35,8 @@ type StateMachine interface {
 	Running() error
 	Scaling() error
 	Stopping() error
+
+	State() public.Status
 }
 
 var _ = StateMachine(&state.StateMachine{})
@@ -41,6 +44,8 @@ var _ = StateMachine(&state.StateMachine{})
 type Session interface {
 	Scale(context.Context, session.ScaleOrder, session.Callback)
 	Stop(session.Callback)
+
+	Count() int
 }
 
 var _ = Session(&session.Session{})
@@ -55,7 +60,13 @@ type Agent struct {
 	server   *grpc.Server
 	mtx      sync.Mutex
 
+	orders *Orders
 	cancel context.CancelFunc
+}
+
+type Status struct {
+	State public.Status
+	Count int
 }
 
 type Orders struct {
@@ -66,16 +77,29 @@ type Orders struct {
 	Wait  int64
 }
 
+func (a *Agent) Status() (status Status) {
+	a.events.Append(func() {
+		status = Status{
+			State: a.StateMachine.State(),
+			Count: a.Session.Count(),
+		}
+	})
+
+	return
+}
+
 func (a *Agent) Scale(orders Orders) (err error) {
 	a.events.Append(func() {
 		if err = a.StateMachine.Scaling(); err != nil {
 			return
 		}
 
+		a.orders = &orders
+
 		sessionOrders := session.ScaleOrder{
-			Count: orders.Count,
-			Rate:  orders.Rate,
-			Wait:  orders.Wait,
+			Count: a.orders.Count,
+			Rate:  a.orders.Rate,
+			Wait:  a.orders.Wait,
 			Work: session.Work{
 				Tasks:   a.config.Tasks,
 				WaitMin: a.config.WaitMin,
@@ -113,5 +137,6 @@ func (a *Agent) onScaled() {
 func (a *Agent) onStopped() {
 	a.events.Append(func() {
 		a.StateMachine.Idle()
+		a.orders = nil
 	})
 }

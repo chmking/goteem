@@ -5,8 +5,10 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gstruct"
 
 	"github.com/chmking/horde"
+	"github.com/chmking/horde/protobuf/public"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -34,6 +36,38 @@ var _ = Describe("Agent", func() {
 		It("constructs a new agent", func() {
 			value := New(horde.Config{})
 			Expect(value).ToNot(BeNil())
+		})
+	})
+
+	Describe("Status", func() {
+		Context("when the agent has no orders", func() {
+			BeforeEach(func() {
+				mockStateMachine.EXPECT().State().Return(public.Status_STATUS_IDLE).AnyTimes()
+				mockSession.EXPECT().Count().Return(0).AnyTimes()
+			})
+
+			It("returns the agent status", func() {
+				status := agent.Status()
+				Expect(status).To(MatchAllFields(Fields{
+					"State": Equal(public.Status_STATUS_IDLE),
+					"Count": BeNumerically("==", 0),
+				}))
+			})
+		})
+
+		Context("when the agent is running orders", func() {
+			BeforeEach(func() {
+				mockStateMachine.EXPECT().State().Return(public.Status_STATUS_SCALING).AnyTimes()
+				mockSession.EXPECT().Count().Return(1).AnyTimes()
+			})
+
+			It("returns the agent status", func() {
+				status := agent.Status()
+				Expect(status).To(MatchAllFields(Fields{
+					"State": Equal(public.Status_STATUS_SCALING),
+					"Count": BeNumerically("==", 1),
+				}))
+			})
 		})
 	})
 

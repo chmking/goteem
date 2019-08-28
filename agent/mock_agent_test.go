@@ -7,6 +7,7 @@ package agent
 import (
 	context "context"
 	session "github.com/chmking/horde/agent/session"
+	public "github.com/chmking/horde/protobuf/public"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -32,6 +33,18 @@ func NewMockSession(ctrl *gomock.Controller) *MockSession {
 // EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockSession) EXPECT() *MockSessionMockRecorder {
 	return m.recorder
+}
+
+// Count mocks base method
+func (m *MockSession) Count() int {
+	ret := m.ctrl.Call(m, "Count")
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// Count indicates an expected call of Count
+func (mr *MockSessionMockRecorder) Count() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockSession)(nil).Count))
 }
 
 // Scale mocks base method
@@ -111,6 +124,18 @@ func (m *MockStateMachine) Scaling() error {
 // Scaling indicates an expected call of Scaling
 func (mr *MockStateMachineMockRecorder) Scaling() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scaling", reflect.TypeOf((*MockStateMachine)(nil).Scaling))
+}
+
+// State mocks base method
+func (m *MockStateMachine) State() public.Status {
+	ret := m.ctrl.Call(m, "State")
+	ret0, _ := ret[0].(public.Status)
+	return ret0
+}
+
+// State indicates an expected call of State
+func (mr *MockStateMachineMockRecorder) State() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "State", reflect.TypeOf((*MockStateMachine)(nil).State))
 }
 
 // Stopping mocks base method
