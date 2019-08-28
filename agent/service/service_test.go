@@ -6,10 +6,13 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gstruct"
 
 	"github.com/chmking/horde"
+	agent "github.com/chmking/horde/agent"
 	. "github.com/chmking/horde/agent/service"
 	"github.com/chmking/horde/protobuf/private"
+	"github.com/chmking/horde/protobuf/public"
 )
 
 var _ = Describe("Service", func() {
@@ -36,11 +39,20 @@ var _ = Describe("Service", func() {
 
 		BeforeEach(func() {
 			req = &private.HealthcheckRequest{}
+
+			mockAgent.EXPECT().Status().Return(agent.Status{
+				State: public.Status_STATUS_SCALING,
+				Count: 1,
+			}).AnyTimes()
 		})
 
 		It("returns a public.HealthcheckResponse", func() {
 			resp, _ := service.Healthcheck(ctx, req)
-			Expect(resp).To(BeEquivalentTo(&private.HealthcheckResponse{}))
+			Expect(resp).NotTo(BeNil())
+			Expect(*resp).To(MatchFields(IgnoreExtras, Fields{
+				"State": Equal(public.Status_STATUS_SCALING),
+				"Count": BeNumerically("==", 1),
+			}))
 		})
 
 		It("does not return an error", func() {

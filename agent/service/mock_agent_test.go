@@ -45,6 +45,18 @@ func (mr *MockAgentMockRecorder) Scale(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scale", reflect.TypeOf((*MockAgent)(nil).Scale), arg0)
 }
 
+// Status mocks base method
+func (m *MockAgent) Status() agent.Status {
+	ret := m.ctrl.Call(m, "Status")
+	ret0, _ := ret[0].(agent.Status)
+	return ret0
+}
+
+// Status indicates an expected call of Status
+func (mr *MockAgentMockRecorder) Status() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Status", reflect.TypeOf((*MockAgent)(nil).Status))
+}
+
 // Stop mocks base method
 func (m *MockAgent) Stop() error {
 	ret := m.ctrl.Call(m, "Stop")

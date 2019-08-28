@@ -42,8 +42,8 @@ message QuitResponse{}
 message HealthcheckRequest{}
 
 message HealthcheckResponse{
-  public.Status State  = 1;
-  Orders        Orders = 2;
+  public.Status State = 1;
+  int32         Count = 2;
 }
 
 message RegisterRequest{

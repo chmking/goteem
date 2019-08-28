@@ -17,6 +17,7 @@ import (
 var _ = private.AgentServer(&Service{})
 
 type Agent interface {
+	Status() agent.Status
 	Scale(order agent.Orders) error
 	Stop() error
 }
@@ -49,7 +50,13 @@ func (s *Service) Healthcheck(
 	ctx context.Context,
 	req *pb.HealthcheckRequest) (*pb.HealthcheckResponse, error) {
 
-	return &pb.HealthcheckResponse{}, nil
+	status := s.Agent.Status()
+	resp := &pb.HealthcheckResponse{
+		State: status.State,
+		Count: int32(status.Count),
+	}
+
+	return resp, nil
 }
 
 func (s *Service) Scale(
