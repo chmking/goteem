@@ -60,7 +60,7 @@ var _ = Describe("Manager", func() {
 		Context("when there is at least one registered agent", func() {
 			BeforeEach(func() {
 				mockRegistry.EXPECT().GetActive().Return([]registry.Registration{
-					registry.Registration{Client: mockClient},
+					{Client: mockClient},
 				}).AnyTimes()
 			})
 
@@ -141,7 +141,7 @@ var _ = Describe("Manager", func() {
 			Context("and there is at least one registered agent", func() {
 				BeforeEach(func() {
 					mockRegistry.EXPECT().GetAll().Return([]registry.Registration{
-						registry.Registration{Client: mockClient},
+						{Client: mockClient},
 					}).AnyTimes()
 				})
 
@@ -224,7 +224,7 @@ var _ = Describe("Manager", func() {
 				mockStateMachine.EXPECT().State().Return(public.Status_STATUS_RUNNING).AnyTimes()
 				mockStateMachine.EXPECT().Scaling().Return(nil).AnyTimes()
 				mockRegistry.EXPECT().GetActive().Return([]registry.Registration{
-					registry.Registration{Client: mockClient},
+					{Client: mockClient},
 				}).AnyTimes()
 			})
 

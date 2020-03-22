@@ -154,7 +154,7 @@ var _ = Describe("Session", func() {
 				session.workers = make([]context.CancelFunc, 1, 1)
 				order.Count = 2
 				order.Work = Work{
-					Tasks: []*horde.Task{&horde.Task{Func: func(ctx context.Context) {}}},
+					Tasks: []*horde.Task{{Func: func(ctx context.Context) {}}},
 				}
 			})
 
